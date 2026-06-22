@@ -91,24 +91,24 @@
         <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-xl mb-3 shadow-inner">
           <i class="fa-solid fa-circle-info"></i>
         </div>
-        <h3 class="text-lg font-extrabold text-slate-900">가치갈래 실시간 협업 & 공유 가이드</h3>
-        <p class="text-xs text-slate-500 mt-1 text-red-500 font-semibold">※ 404 에러가 발생하셨나요? 꼭 읽어보세요!</p>
+        <h3 class="text-lg font-extrabold text-slate-900">가치갈래 실시간 협업 & 외부 배포 가이드</h3>
+        <p class="text-xs text-slate-500 mt-1 text-red-500 font-semibold">※ 외부(Vercel 등) 배포 후 오류가 발생한다면 필독!</p>
       </div>
 
       <div class="space-y-4 text-xs leading-relaxed text-slate-600">
         <div class="flex items-start space-x-3 bg-red-50 p-3 rounded-xl border border-red-100">
           <i class="fa-solid fa-triangle-exclamation text-red-500 mt-1"></i>
           <div>
-            <h4 class="font-bold text-red-900">미리보기 링크(scf.usercontent.goog)는 공유가 불가능합니다.</h4>
-            <p class="mt-0.5 text-red-800">현재 보시는 화면은 개발용 임시 샌드박스로, 외부인(친구)이 링크를 누르면 구글 보안 정책에 의해 <strong>404 에러</strong>가 발생합니다.</p>
+            <h4 class="font-bold text-red-900">외부 배포 시 API KEY 필수 입력!</h4>
+            <p class="mt-0.5 text-red-800">미리보기 화면이 아닌 Vercel 등에 직접 배포한 사이트에서는 구글이 무료 API 연결을 막습니다. <strong>우측 상단 [Gemini API Key] 칸에 본인이 발급받은 실제 API 키를 넣어야만</strong> 후보지 검색과 일정 생성이 작동합니다.</p>
           </div>
         </div>
 
         <div class="flex items-start space-x-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
           <span class="bg-indigo-600 text-white font-black w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">1</span>
           <div>
-            <h4 class="font-bold text-slate-900">실제 공유를 위한 필수 조건 (Vercel 배포)</h4>
-            <p class="mt-0.5">타인과 완벽하게 오류 없이 공유하려면 우측 코드를 `index.html` 파일로 저장한 후 <strong>Vercel, GitHub Pages, Netlify</strong> 등에 업로드(배포)하여 정식 도메인을 발급받으셔야 합니다.</p>
+            <h4 class="font-bold text-slate-900">초대 정보 복사 및 동기화</h4>
+            <p class="mt-0.5">일정 생성 후 하단의 <strong class="text-indigo-600">초대 링크 복사</strong>를 누르면 <strong>초대 링크</strong>와 <strong>초대 코드(Trip ID)</strong>가 복사됩니다. 친구가 404 에러를 겪는다면 첫 화면 하단에 이 코드를 붙여넣도록 안내하세요.</p>
           </div>
         </div>
 
@@ -116,10 +116,10 @@
           <span class="bg-indigo-600 text-white font-black w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">2</span>
           <div>
             <h4 class="font-bold text-indigo-950 flex items-center">
-              <span>지금 당장 테스트해보고 싶다면?</span>
+              <span>Firebase 서버 직접 구축 안내</span>
             </h4>
-            <p class="mt-0.5 text-indigo-900/90 font-medium">현재 브라우저에서 '새 탭'을 열고 샌드박스 주소로 들어온 뒤,</p>
-            <p class="mt-1">첫 화면 하단의 <strong>'기존 일행의 여행 일정 불러오기'</strong> 칸에 <strong class="underline">초대 코드(Trip ID)</strong>를 붙여넣어 보세요. 정상적으로 동기화됩니다!</p>
+            <p class="mt-0.5 text-indigo-900/90 font-medium">Vercel에서 실시간 동기화(공유) 기능을 완벽히 쓰려면,</p>
+            <p class="mt-1">소스 코드 하단의 `defaultFirebaseConfig` 부분을 <strong>본인이 직접 만든 Firebase 프로젝트의 환경설정(Config) 값으로 교체</strong>해야 동기화 서버가 정상적으로 활성화됩니다.</p>
           </div>
         </div>
       </div>
@@ -132,20 +132,20 @@
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
     
     <!-- Gemini API Key Notice -->
-    <section class="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <section class="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
       <div class="flex items-start space-x-3">
         <div class="bg-amber-100 text-amber-800 p-2 rounded-lg mt-0.5">
           <i class="fa-solid fa-key"></i>
         </div>
         <div>
-          <h3 class="text-sm font-semibold text-amber-900">개인 서비스 이용을 위한 안내</h3>
-          <p class="text-xs text-amber-700 mt-0.5">
-            이 앱은 무료 환경에서 완벽히 작동합니다. GitHub/Vercel 등에 직접 배포하여 개인 키를 적용하고 싶다면 우측에 입력해주세요. (입력하지 않으면 데모 키 또는 내장 키로 호출됩니다.)
+          <h3 class="text-sm font-semibold text-amber-900">외부 배포 시 서비스 이용을 위한 필수 안내</h3>
+          <p class="text-[11px] text-amber-700 mt-0.5 leading-relaxed">
+            Vercel이나 GitHub 등에 본 파일을 배포하신 후에는 반드시 아래에 <strong>직접 발급받은 Gemini API Key</strong>를 입력해야 AI가 작동합니다. <br/>(입력하지 않고 검색 시 <strong>"API 키가 필요합니다"</strong> 오류가 발생합니다.)
           </p>
         </div>
       </div>
       <div class="flex items-center space-x-2">
-        <input type="password" id="inputApiKey" placeholder="Gemini API Key (선택)" class="w-full md:w-60 px-3 py-1.5 text-xs border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white">
+        <input type="password" id="inputApiKey" placeholder="Gemini API Key (필수)" class="w-full md:w-60 px-4 py-2 text-xs border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white shadow-inner">
       </div>
     </section>
 
@@ -153,7 +153,7 @@
     <div id="wizardSection" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-10 max-w-3xl mx-auto w-full transition-all duration-300">
       <div class="text-center mb-6">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">나만의 인공지능 커스텀 여행 설계</h2>
-        <p class="text-slate-500 text-sm mt-2">간편한 기본 일정 입력 후, AI가 즉시 분석한 맞춤형 관광지, 숙박 및 교통 옵션을 터치하여 최적의 일정표를 짜보세요.</p>
+        <p class="text-slate-500 text-sm mt-2">국내외 어디든! 간편한 일정 입력 후, AI가 즉시 분석한 맞춤형 추천 옵션을 고르세요.</p>
       </div>
 
       <!-- Step Progress Header -->
@@ -306,7 +306,7 @@
             <!-- Hotel Style -->
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">희망하는 호텔 스타일/숙소 타입</label>
-              <input type="text" id="hotelInput" placeholder="예: 온천이 있는 료칸, 수영장이 있는 4성급 호텔 등" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <input type="text" id="hotelInput" placeholder="예: 온천이 있는 료칸, 조식 맛집 4성급 호텔 등" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
             </div>
             <!-- Flight time preferences -->
             <div class="grid grid-cols-2 gap-3">
@@ -337,7 +337,7 @@
             <!-- Extra requests -->
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">이 외 특별 요청사항</label>
-              <textarea id="customNotesInput" rows="2" placeholder="예: 너무 타이트하지 않게 일정을 짜주세요. 아동 맞춤 캐릭터샵이나 장난감 매장 동선도 원합니다." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
+              <textarea id="customNotesInput" rows="2" placeholder="예: 너무 타이트하지 않게 일정을 짜주세요. 아동 맞춤 캐릭터샵도 원합니다." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
             </div>
             <!-- Fixed Plans -->
             <div>
@@ -392,7 +392,7 @@
       </div>
       <h3 class="text-xl font-bold text-slate-900 mt-8">Gemini AI가 가장 똑똑한 여행 코스를 그리는 중...</h3>
       <p class="text-slate-500 text-sm mt-2 text-center max-w-md px-4">
-        요청하신 동행 특징과 최신 구글 맵 데이터, 대형 커뮤니티 추천 코스를 조합해 일자별 완벽한 타임라인, 식사, 맞춤 체크리스트 및 초기 예산을 생성하고 있습니다. 잠시만 기다려주세요!
+        요청하신 동행 특징과 최신 데이터를 조합해 국내/해외를 아우르는 맞춤형 일정, 식사, 체크리스트 및 초기 예산을 생성하고 있습니다. 잠시만 기다려주세요!
       </p>
       <!-- Simulation Status -->
       <div class="mt-6 flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-xs font-semibold">
@@ -406,7 +406,7 @@
       <div class="text-center border-b border-slate-100 pb-4">
         <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full"><i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i>AI 후보 옵션 선택</span>
         <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">✨ 여행 후보 항목 세부 조율 및 선택</h2>
-        <p class="text-slate-500 text-xs mt-1">AI가 추천하는 최대 10가지 맞춤 항목을 왼쪽의 간략 일정표 동선에 맞춰 자유롭게 선택해 보세요.</p>
+        <p class="text-slate-500 text-xs mt-1">AI가 추천하는 최대 5~10가지 맞춤 항목을 왼쪽의 간략 일정표 동선에 맞춰 자유롭게 선택해 보세요.</p>
       </div>
 
       <!-- Split Layout: Left Itinerary Guide, Right Option Tabs -->
@@ -428,16 +428,14 @@
         <div class="lg:col-span-8 space-y-4">
           <!-- Option Tabs Selection -->
           <div class="flex bg-slate-100 p-1 rounded-xl">
-            <button onclick="switchRecTab('flights')" id="recTabBtn-flights" class="rec-tab-btn flex-1 py-2 text-xs font-bold rounded-lg bg-white text-indigo-600 shadow-sm"><i class="fa-solid fa-plane mr-1.5"></i>항공권</button>
+            <button onclick="switchRecTab('flights')" id="recTabBtn-flights" class="rec-tab-btn flex-1 py-2 text-xs font-bold rounded-lg bg-white text-indigo-600 shadow-sm"><i class="fa-solid fa-plane mr-1.5"></i>항공/메인교통</button>
             <button onclick="switchRecTab('hotels')" id="recTabBtn-hotels" class="rec-tab-btn flex-1 py-2 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900"><i class="fa-solid fa-hotel mr-1.5"></i>숙소/호텔</button>
             <button onclick="switchRecTab('restaurants')" id="recTabBtn-restaurants" class="rec-tab-btn flex-1 py-2 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900"><i class="fa-solid fa-utensils mr-1.5"></i>맛집 후보</button>
-            <button onclick="switchRecTab('transit')" id="recTabBtn-transit" class="rec-tab-btn flex-1 py-2 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900"><i class="fa-solid fa-train-subway mr-1.5"></i>교통/이동수단</button>
+            <button onclick="switchRecTab('transit')" id="recTabBtn-transit" class="rec-tab-btn flex-1 py-2 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900"><i class="fa-solid fa-train-subway mr-1.5"></i>현지이동수단</button>
           </div>
 
           <!-- Option Pages dynamic containers with height limits and scrollbars -->
-          <div id="recPage-flights" class="space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto custom-scrollbar pr-2 relative">
-            <!-- ✈️ FLIGHT SORT UI WILL BE INJECTED HERE -->
-          </div>
+          <div id="recPage-flights" class="space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto custom-scrollbar pr-2 relative"></div>
           <div id="recPage-hotels" class="hidden space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto custom-scrollbar pr-2"></div>
           <div id="recPage-restaurants" class="hidden space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto custom-scrollbar pr-2"></div>
           <div id="recPage-transit" class="hidden space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto custom-scrollbar pr-2"></div>
@@ -742,7 +740,6 @@
 
   <!-- Firebase Core SDK and Compatibility Layer for easy single file access -->
   <script type="module">
-    // Import Web SDK from cdn
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js';
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js';
     import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js';
@@ -753,7 +750,7 @@
     let currentUser = null;
     let activeFirebaseDocListener = null;
 
-    // Standalone fallback config
+    // Vercel 등에 외부 배포 시, 아래 defaultFirebaseConfig를 본인의 Firebase 콘솔 설정으로 교체해야 합니다!
     const defaultFirebaseConfig = {
       apiKey: "demo-api-key",
       authDomain: "demo-project.firebaseapp.com",
@@ -848,14 +845,14 @@
       apiKey: '',
       activeTab: 'itinerary',
       activeRecTab: 'flights',
-      flightSort: 'price_asc', // ✈️ NEW: Default flight sorting state
+      flightSort: 'price_asc',
       isGenerating: false,
       tripId: null,
       tripInput: {
-        destType: '',
+        destType: '', // domestic | intl
         continent: '',
-        destinations: [],
-        destination: '',
+        destinations: [], 
+        destination: '', 
         startDate: '',
         endDate: '',
         companions: {
@@ -893,7 +890,6 @@
       setDestType('domestic');
     });
 
-    // Rule 3: Auth First
     async function initAuthentication() {
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -961,7 +957,6 @@
       }
     }
 
-    // Step 1 Domestic/Intl Toggler
     window.setDestType = function(type) {
       state.tripInput.destType = type;
       const domBtn = document.getElementById('btnDestDomestic');
@@ -1247,7 +1242,6 @@
       return state.tripInput.destinations.join(', ');
     }
 
-    // ✈️ NEW: Sort Flights dynamically
     window.sortFlights = function(criteria) {
       state.flightSort = criteria;
       if (!state.recOptions || !state.recOptions.flights) return;
@@ -1264,6 +1258,7 @@
       renderCandidateOptions();
     };
 
+    // 🚨 FIXED DOMESTIC FLIGHTS ISSUE: Instructs AI to use KTX/Buses in the "flights" array if strict airplanes are not available.
     async function triggerIntermediateOptionsSearch() {
       if (!validateStep()) return;
 
@@ -1299,12 +1294,12 @@
       document.getElementById('wizardSection').classList.add('hidden');
       const loader = document.getElementById('loaderSection');
       loader.classList.remove('hidden');
-      document.getElementById('loaderStatusMsg').innerText = "현지 최신 항공, 호텔, 식당, 교통 패스 옵션을 정밀 분석하여 최대 10개씩의 디테일 리스트를 생성하는 중...";
+      document.getElementById('loaderStatusMsg').innerText = "현지 최신 항공, 호텔, 식당, 교통 패스 옵션을 정밀 분석하여 5~10개씩의 디테일 리스트를 생성하는 중...";
 
-      // 🍽️ IMPROVED PROMPT: Forces AI to suggest Local + Korean names and Image placeholders for menus.
-      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, flight time frames, and companion structure, generate a rough daily brief itinerary and EXACTLY 10 realistic high-quality candidates for Flights, Hotels, Restaurants, and Transportation options.
+      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, flight time frames, and companion structure, generate a rough daily brief itinerary and 5 to 10 realistic high-quality candidates for Flights, Hotels, Restaurants, and Transportation options.
+CRITICAL FOR DOMESTIC TRAVEL: If actual airplane flights are rare or not applicable for the destination (e.g., domestic trips within Korea like Seoul to Gangneung/Busan), you MUST populate the 'flights' array with KTX, SRT, or Express Bus options instead, using the 'airline' field for the transport company name (e.g. KTX, SRT, 고속버스).
 CRITICAL: ALL responses, descriptions, titles, airline names, and guides MUST be written in Korean. Do NOT use English names for airlines (e.g. use 피치항공, 티웨이항공, 에어부산, 일본항공(JAL), 전일본공수(ANA), 대한항공, 아시아나항공, 제주항공, 진에어, 이스타항공 instead of English equivalents).
-For flights, design logical times and cost in KRW.
+For flights/main transit, design logical times and cost in KRW.
 For transportation, suggest train tickets, subway cards, rental cars, or bus passes with detailed boarding point locations, exact purchase/reservation instructions, and boarding platform descriptions.
 For food/restaurants, you MUST specify 1-2 recommended signature menu items tailored to the companions. Write the menu name in BOTH the local language and Korean (e.g., "ハンバーグ (함박스테이크)"). ALSO, insert an image marker exactly like "" next to the menu so the user can show it to the staff.
 For 'googleMapsQuery', provide a concise and highly accurate search term without extra sentences.
@@ -1315,7 +1310,7 @@ Destination: ${dest}
 Dates: ${start} ~ ${end}
 Companions: ${companionsDesc} (${state.tripInput.companions.relationship})
 Hotel Style Preference: ${hotelPref || 'Not specified'}
-Expected Airport Arriving Time: ${arrivalTime || 'Not specified'}
+Expected Arrival Time: ${arrivalTime || 'Not specified'}
 Expected Departure Time: ${departureTime || 'Not specified'}
 Transportation Setting: ${transportPref}
 Meal Request: ${foodPref || 'Not specified'}
@@ -1441,7 +1436,11 @@ Special request: ${customNotes || 'None'}`;
         console.error("Option search error:", err);
         loader.classList.add('hidden');
         document.getElementById('wizardSection').classList.remove('hidden');
-        showToast("후보지를 불러오는 도중 오류가 발생했습니다. 다시 시작해 주세요.");
+        if (err.message === "API_KEY_ERROR") {
+          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else {
+          showToast("후보지를 불러오는 도중 오류가 발생했습니다. 조건(특히 국내여행지)을 약간 변경해 다시 시도해 주세요.");
+        }
       }
     }
 
@@ -1495,7 +1494,6 @@ Special request: ${customNotes || 'None'}`;
       const flContainer = document.getElementById('recPage-flights');
       flContainer.innerHTML = '';
       
-      // ✈️ NEW: Add Sort UI for flights dynamically
       const sortDiv = document.createElement('div');
       sortDiv.className = "flex justify-end mb-2 sticky top-0 bg-white/90 backdrop-blur-sm p-2 z-10 rounded-xl border border-slate-100 shadow-sm";
       sortDiv.innerHTML = `
@@ -1516,7 +1514,7 @@ Special request: ${customNotes || 'None'}`;
               <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-md">${fl.airline}</span>
               <span class="text-xs font-semibold text-slate-500">${fl.timeSchedule}</span>
             </div>
-            <p class="text-xs text-slate-600 font-medium"><i class="fa-solid fa-location-crosshairs mr-1"></i>탑승 안내: ${fl.boardingDetails}</p>
+            <p class="text-xs text-slate-600 font-medium"><i class="fa-solid fa-location-crosshairs mr-1"></i>탑승/출발 안내: ${fl.boardingDetails}</p>
             <p class="text-[10px] text-slate-400"><i class="fa-solid fa-cart-shopping mr-1"></i>예매처: <a href="${fl.ticketLink}" target="_blank" class="text-indigo-500 hover:underline">${fl.ticketLink}</a></p>
             <div class="text-[11px] text-slate-400 bg-slate-200/50 p-2 rounded-lg inline-block font-mono mt-1">${fl.imageUrl}</div>
           </div>
@@ -1638,7 +1636,6 @@ Special request: ${customNotes || 'None'}`;
       renderCandidateOptions();
     };
 
-    // FINAL ITINERARY: Map encoding and Detailed prompts implemented
     window.triggerFinalItineraryAIGenerator = async function() {
       const sel = state.selectedSelections;
       if (!sel.flight || !sel.hotel || sel.restaurants.length === 0 || !sel.transit) {
@@ -1668,7 +1665,7 @@ Output MUST strictly match the specified JSON schema format. Do NOT wrap in any 
 - Companions: ${getCompanionsTextDesc()} (${state.tripInput.companions.relationship})
 
 SELECTED LOGISTICS (You must incorporate these exact options):
-- Chosen Flight: ${JSON.stringify(sel.flight)}
+- Chosen Flight/Transit: ${JSON.stringify(sel.flight)}
 - Chosen Hotel: ${JSON.stringify(sel.hotel)}
 - Chosen Restaurants: ${JSON.stringify(sel.restaurants)}
 - Chosen Transportation Mode: ${JSON.stringify(sel.transit)}
@@ -1752,7 +1749,6 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       try {
         const finalTripPlan = await callGeminiAPI(payload, apiKeyToUse);
         
-        // 🛡️ STRICT PRICE LOCK GUARD
         const startD = new Date(state.tripInput.startDate);
         const endD = new Date(state.tripInput.endDate);
         const diffTime = Math.abs(endD - startD);
@@ -1772,7 +1768,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
           finalTripPlan.budget.unshift({
             id: 'locked-flight-budget',
             category: '항공',
-            item: `${sel.flight.airline} 왕복 항공권 (${sel.flight.timeSchedule})`,
+            item: `${sel.flight.airline} 메인 교통/항공편 (${sel.flight.timeSchedule})`,
             amount: sel.flight.price
           });
         }
@@ -1815,10 +1811,15 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         console.error("Final generation failure:", err);
         loader.classList.add('hidden');
         document.getElementById('recommendationSection').classList.remove('hidden');
-        showToast("일정 생성에 실패했습니다. 다시 요청해 주세요.");
+        if (err.message === "API_KEY_ERROR") {
+          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else {
+          showToast("일정 생성에 실패했습니다. (API 오류). 다시 시도해주세요.");
+        }
       }
     };
 
+    // 🚨 FIXED: Detect 400/403 errors indicating an invalid/missing API key on external platforms (like Vercel)
     async function callGeminiAPI(payload, customKey, retries = 5, delay = 1000) {
       const apiKey = customKey || "";
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
@@ -1831,6 +1832,9 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         });
 
         if (!response.ok) {
+          if (response.status === 400 || response.status === 403) {
+             throw new Error("API_KEY_ERROR");
+          }
           throw new Error(`HTTP Error Status: ${response.status}`);
         }
 
@@ -1844,7 +1848,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         return JSON.parse(responseText.trim());
 
       } catch (error) {
-        if (retries > 0) {
+        if (error.message !== "API_KEY_ERROR" && retries > 0) {
           await new Promise(resolve => setTimeout(resolve, delay));
           return callGeminiAPI(payload, customKey, retries - 1, delay * 2);
         }
@@ -1937,7 +1941,11 @@ User Modification Request: "${instruction}"`;
       } catch (err) {
         console.error("AI Day Tuner failed:", err);
         loader.classList.add('hidden');
-        showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
+        if (err.message === "API_KEY_ERROR") {
+          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else {
+          showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
+        }
       }
     };
 
@@ -2003,7 +2011,11 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         showToast("AI 예산 최적화 분석 리포트가 완성되었습니다!");
       } catch (err) {
         console.error("AI Budget Optimization failed:", err);
-        showToast("예산 분석 도중 오류가 발생했습니다.");
+        if (err.message === "API_KEY_ERROR") {
+          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else {
+          showToast("예산 분석 도중 오류가 발생했습니다.");
+        }
       } finally {
         btn.disabled = false;
         loader.classList.add('hidden');
@@ -2132,7 +2144,6 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         dayCard.id = 'timeline-day-' + dayData.day;
         dayCard.className = "bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 scroll-mt-20";
 
-        // Generate All-in-one Daily Map URL safely
         let dailyMapUrl = '#';
         if (dayData.activities && dayData.activities.length > 0) {
             if (dayData.activities.length === 1) {
@@ -2144,7 +2155,6 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
                 if (dayData.activities.length > 2) {
                     const middleActs = dayData.activities.slice(1, -1);
                     const wpArray = middleActs.map(a => encodeURIComponent(a.googleMapsQuery || a.title));
-                    // Safely join waypoints with %7C (| symbol) to prevent 400 bad request in strict browsers
                     waypointsStr = '&waypoints=' + wpArray.join('%7C');
                 }
                 dailyMapUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}${waypointsStr}`;
@@ -2162,7 +2172,6 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
               <span class="text-xs font-medium text-slate-500 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
                 <i class="fa-solid fa-compass text-indigo-500 mr-1"></i> ${dayData.daySummary || '인기 관광 코스'}
               </span>
-              <!-- ALL-IN-ONE GOOGLE MAP BUTTON -->
               <a href="${dailyMapUrl}" target="_blank" class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center shadow-sm">
                 <i class="fa-solid fa-map-location-dot mr-1.5 text-emerald-600"></i>오늘의 전체 동선 구글지도
               </a>
