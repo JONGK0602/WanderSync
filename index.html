@@ -406,7 +406,7 @@
       <div class="text-center border-b border-slate-100 pb-4">
         <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full"><i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i>AI 후보 옵션 선택</span>
         <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">✨ 여행 후보 항목 세부 조율 및 선택</h2>
-        <p class="text-slate-500 text-xs mt-1">AI가 추천하는 최대 5~6가지 핵심 맞춤 항목을 왼쪽의 간략 일정표 동선에 맞춰 자유롭게 선택해 보세요.</p>
+        <p class="text-slate-500 text-xs mt-1">AI가 추천하는 4가지 핵심 맞춤 항목을 왼쪽의 간략 일정표 동선에 맞춰 자유롭게 선택해 보세요.</p>
       </div>
 
       <!-- Split Layout: Left Itinerary Guide, Right Option Tabs -->
@@ -547,7 +547,7 @@
                 </div>
                 <div>
                   <label class="block text-[10px] text-indigo-300 font-bold mb-1">어떻게 변경하고 싶으신가요?</label>
-                  <textarea id="aiTunerInstruction" rows="3" placeholder="예: 비가 오니까 실내 위주 동선으로 완전히 교체해줘 / 아이 맞춤 동선을 추가해줘" class="w-full bg-indigo-800 border border-indigo-700 text-white text-xs rounded-lg p-2 placeholder-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"></textarea>
+                  <textarea id="aiTunerInstruction" rows="3" placeholder="예: 비가 오니까 실내 위주 동선으로 완전히 교체해줘 / 9살 아이 캐릭터샵 동선을 추가해줘" class="w-full bg-indigo-800 border border-indigo-700 text-white text-xs rounded-lg p-2 placeholder-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"></textarea>
                 </div>
                 
                 <button onclick="tuneItineraryDayWithAI()" id="btnAiTuner" class="w-full bg-white hover:bg-indigo-50 text-indigo-950 font-bold text-xs py-2 px-3 rounded-xl transition duration-200 flex items-center justify-center space-x-1.5 shadow">
@@ -1263,6 +1263,7 @@
       renderCandidateOptions();
     };
 
+    // 🚨 FIXED: Reduced option count to 4 (stable JSON parsing) & Included MaxOutputTokens & Safe Parsing
     async function triggerIntermediateOptionsSearch() {
       if (!validateStep()) return;
 
@@ -1300,8 +1301,9 @@
       loader.classList.remove('hidden');
       document.getElementById('loaderStatusMsg').innerText = "현지 최신 데이터를 분석 중입니다. 데이터 양이 많아 약간의 시간이 소요될 수 있습니다...";
 
-      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, and companions, generate a brief daily itinerary and EXACTLY 5 high-quality candidates for Flights/Main Transit, Hotels, Restaurants, and Local Transportation.
-CRITICAL: To avoid JSON truncation errors, you MUST generate exactly 5 items per category. Keep all descriptions CONCISE (1 short sentence max).
+      // ✨ OPTIMIZED PROMPT: Kept to 4 items to guarantee JSON parses correctly without truncation!
+      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, and companions, generate a brief daily itinerary and EXACTLY 4 high-quality candidates for Flights/Main Transit, Hotels, Restaurants, and Local Transportation.
+CRITICAL: To avoid JSON truncation errors, you MUST generate exactly 4 items per category. Keep all descriptions VERY CONCISE (1 short sentence max).
 CRITICAL FOR DOMESTIC TRAVEL (like Jeonju, Gyeongju): If airplane flights are rare, populate the 'flights' array with KTX, SRT, or Express Bus options instead.
 CRITICAL: ALL text MUST be in Korean. 
 For food/restaurants, specify 1-2 menu items. Write the menu name in local language AND Korean. Insert an image marker like "" next to the menu.
@@ -1323,6 +1325,7 @@ Special request: ${customNotes || 'None'}`;
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: {
           responseMimeType: "application/json",
+          maxOutputTokens: 8192, // CRITICAL FIX TO PREVENT UNEXPECTED END OF INPUT
           responseSchema: {
             type: "OBJECT",
             properties: {
@@ -1686,6 +1689,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: {
           responseMimeType: "application/json",
+          maxOutputTokens: 8192, // CRITICAL FIX TO PREVENT UNEXPECTED END OF INPUT
           responseSchema: {
             type: "OBJECT",
             properties: {
@@ -1828,6 +1832,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
+    // 🚨 SAFE PARSER FIX: Safe parsing for truncated responses
     async function callGeminiAPI(payload, customKey, retries = 5, delay = 1000) {
       const apiKey = customKey || "";
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
@@ -1853,7 +1858,12 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
           throw new Error("No candidates received from Gemini API response.");
         }
 
-        responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            responseText = jsonMatch[0];
+        } else {
+            responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        }
 
         try {
             return JSON.parse(responseText);
@@ -1910,6 +1920,7 @@ User Modification Request: "${instruction}"`;
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: {
           responseMimeType: "application/json",
+          maxOutputTokens: 8192,
           responseSchema: {
             type: "OBJECT",
             properties: {
@@ -1987,6 +1998,7 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: {
           responseMimeType: "application/json",
+          maxOutputTokens: 8192,
           responseSchema: {
             type: "OBJECT",
             properties: {
