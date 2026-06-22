@@ -1252,6 +1252,7 @@
       renderCandidateOptions();
     };
 
+    // 🚨 FIXED: Safe 3-item limit to strictly prevent "Unexpected end of input" on Gemini Flash Preview
     async function triggerIntermediateOptionsSearch() {
       if (!validateStep()) return;
 
@@ -1430,7 +1431,7 @@ Special request: ${customNotes || 'None'}`;
         loader.classList.add('hidden');
         document.getElementById('wizardSection').classList.remove('hidden');
         if (err.message === "API_KEY_ERROR") {
-          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+          showToast("🚨 외부 배포 시에는 우측 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
           showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
@@ -1809,7 +1810,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         loader.classList.add('hidden');
         document.getElementById('recommendationSection').classList.remove('hidden');
         if (err.message === "API_KEY_ERROR") {
-          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+          showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
           showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
@@ -1820,15 +1821,14 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
-    // 🚨 SMART FALLBACK & SAFE PARSER: Fixes Vercel 404 errors by auto-switching to public 1.5-flash model
+    // 🚨 SMART FALLBACK & SAFE PARSER: Auto detects Vercel vs Sandbox and tries to repair JSON
     async function callGeminiAPI(payload, customKey, retries = 3, delay = 1500) {
       const apiKey = customKey || "";
-      const models = [
-        "gemini-2.5-flash-preview-09-2025", // 내부 샌드박스용
-        "gemini-1.5-flash",                 // 퍼블릭 Vercel 배포 우회용
-        "gemini-1.5-pro",
-        "gemini-2.0-flash-exp"
-      ];
+      const isExternal = typeof __firebase_config === 'undefined';
+      
+      const models = isExternal 
+        ? ["gemini-1.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-pro"]
+        : ["gemini-2.5-flash-preview-09-2025", "gemini-1.5-flash"];
 
       let lastError;
 
@@ -1898,7 +1898,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
             }
             lastError = error;
             if (error.message === "MODEL_NOT_FOUND") {
-                continue; // 404 에러 시 즉각 퍼블릭 모델로 Fallback(우회)
+                continue; 
             }
             break; 
           }
@@ -2001,7 +2001,7 @@ User Modification Request: "${instruction}"`;
         console.error("AI Day Tuner failed:", err);
         loader.classList.add('hidden');
         if (err.message === "API_KEY_ERROR") {
-          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+          showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
           showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else {
@@ -2073,13 +2073,7 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         showToast("AI 예산 최적화 분석 리포트가 완성되었습니다!");
       } catch (err) {
         console.error("AI Budget Optimization failed:", err);
-        if (err.message === "API_KEY_ERROR") {
-          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
-        } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
-        } else {
-          showToast("예산 분석 도중 오류가 발생했습니다.");
-        }
+        showToast("예산 분석 도중 오류가 발생했습니다.");
       } finally {
         btn.disabled = false;
         loader.classList.add('hidden');
