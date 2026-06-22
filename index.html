@@ -311,7 +311,7 @@
             <!-- Flight time preferences -->
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">첫날 공항 도착 시각</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">첫날 공항/역 도착 시각</label>
                 <input type="time" id="arrivalTimeInput" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
               </div>
               <div>
@@ -390,9 +390,9 @@
         <div class="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-indigo-600"></div>
         <i class="fa-solid fa-wand-magic-sparkles text-3xl text-indigo-600 absolute animate-pulse"></i>
       </div>
-      <h3 class="text-xl font-bold text-slate-900 mt-8">Gemini AI가 가장 똑똑한 여행 코스를 그리는 중...</h3>
+      <h3 class="text-xl font-bold text-slate-900 mt-8">Gemini AI가 여행 후보군을 검색하고 있습니다...</h3>
       <p class="text-slate-500 text-sm mt-2 text-center max-w-md px-4">
-        요청하신 동행 특징과 최신 구글 맵 데이터, 대형 커뮤니티 추천 코스를 조합해 일자별 완벽한 타임라인, 식사, 맞춤 체크리스트 및 초기 예산을 생성하고 있습니다. 잠시만 기다려주세요!
+        요청하신 지역의 최신 교통편, 추천 호텔, 메뉴판 정보 및 동선을 수집하고 있습니다. 약 10~15초 정도 소요됩니다.
       </p>
       <!-- Simulation Status -->
       <div class="mt-6 flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-xs font-semibold">
@@ -406,7 +406,7 @@
       <div class="text-center border-b border-slate-100 pb-4">
         <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full"><i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i>AI 후보 옵션 선택</span>
         <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">✨ 여행 후보 항목 세부 조율 및 선택</h2>
-        <p class="text-slate-500 text-xs mt-1">AI가 추천하는 최대 5~10가지 맞춤 항목을 왼쪽의 간략 일정표 동선에 맞춰 자유롭게 선택해 보세요.</p>
+        <p class="text-slate-500 text-xs mt-1">AI가 추천하는 최대 5가지의 알짜 맞춤 항목을 왼쪽의 간략 일정표 동선에 맞춰 자유롭게 선택해 보세요.</p>
       </div>
 
       <!-- Split Layout: Left Itinerary Guide, Right Option Tabs -->
@@ -776,7 +776,7 @@
     auth = getAuth(app);
     db = getFirestore(app);
 
-    // 🚨 FIXED: Expanded 10 popular Domestic Destinations to prevent manual typing errors
+    // 🚨 FIXED: Expanded 12 popular Domestic Destinations to prevent manual typing errors & KTX fallback fixes
     const destOptions = {
       domestic: {
         seoul: "서울",
@@ -790,6 +790,7 @@
         tongyeong: "통영/거제",
         mokpo: "목포",
         incheon: "인천",
+        suwon: "수원",
         custom: "직접 입력"
       },
       intl: {
@@ -1263,7 +1264,7 @@
       renderCandidateOptions();
     };
 
-    // 🚨 FIXED DOMESTIC FLIGHTS ISSUE: Instructs AI to use KTX/Buses in the "flights" array if strict airplanes are not available.
+    // 🚨 FIXED JSON CUTOFF CRASH: Reduced strict requirement from 10 items to 5 items to prevent generation timeout, especially for small cities!
     async function triggerIntermediateOptionsSearch() {
       if (!validateStep()) return;
 
@@ -1299,12 +1300,12 @@
       document.getElementById('wizardSection').classList.add('hidden');
       const loader = document.getElementById('loaderSection');
       loader.classList.remove('hidden');
-      document.getElementById('loaderStatusMsg').innerText = "현지 최신 항공, 호텔, 식당, 교통 패스 옵션을 정밀 분석하여 5~10개씩의 디테일 리스트를 생성하는 중...";
+      document.getElementById('loaderStatusMsg').innerText = "현지 최신 데이터를 분석 중입니다. 여행지 규모에 맞춰 최적 옵션 5가지를 안전하게 불러옵니다...";
 
-      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, flight time frames, and companion structure, generate a rough daily brief itinerary and 4 to 10 realistic high-quality candidates for Flights/Main Transit, Hotels, Restaurants, and Local Transportation options.
+      // Reduced to 5 candidates to guarantee response stability without breaking JSON
+      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, flight time frames, and companion structure, generate a rough daily brief itinerary and EXACTLY 5 realistic high-quality candidates for Flights/Main Transit, Hotels, Restaurants, and Local Transportation options.
 CRITICAL FOR DOMESTIC TRAVEL (like Jeonju, Gyeongju): If actual airplane flights are rare or not applicable, you MUST populate the 'flights' array with KTX, SRT, ITX, or Express Bus options instead, using the 'airline' field for the transport company name (e.g. KTX, SRT, 프리미엄 고속버스).
 CRITICAL: ALL responses, descriptions, titles, airline names, and guides MUST be written in Korean. Do NOT use English names.
-If 10 options are not realistic for a smaller city, providing 4~6 highly accurate options is better than hallucinating.
 For flights/main transit, design logical times and cost in KRW.
 For transportation, suggest train tickets, subway cards, rental cars, or bus passes with detailed boarding point locations, exact purchase/reservation instructions, and boarding platform descriptions.
 For food/restaurants, you MUST specify 1-2 recommended signature menu items tailored to the companions. Write the menu name in BOTH the local language and Korean (e.g., "ハンバーグ (함박스테이크)" or "비빔밥"). ALSO, insert an image marker exactly like "" next to the menu so the user can show it to the staff.
@@ -1436,7 +1437,7 @@ Special request: ${customNotes || 'None'}`;
         loader.classList.add('hidden');
         document.getElementById('recommendationSection').classList.remove('hidden');
         switchRecTab('flights');
-        showToast("AI 제안 리스트가 구성되었습니다! 항목들을 선택하고 확정해 보세요.");
+        showToast("AI 제안 리스트가 5개씩 안전하게 구성되었습니다! 항목들을 확정해 보세요.");
 
       } catch (err) {
         console.error("Option search error:", err);
@@ -1444,8 +1445,10 @@ Special request: ${customNotes || 'None'}`;
         document.getElementById('wizardSection').classList.remove('hidden');
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else if (err.message === "JSON_PARSE_ERROR") {
+          showToast("AI 응답이 너무 길어 처리 도중 끊겼습니다. 옵션을 조금 줄여 다시 시도해주세요.");
         } else {
-          showToast("후보지를 불러오는 도중 오류가 발생했습니다. 조건(특히 국내여행지)을 약간 변경해 다시 시도해 주세요.");
+          showToast("후보지를 불러오는 도중 오류가 발생했습니다. 조건(특히 소도시)을 약간 변경해 다시 시도해 주세요.");
         }
       }
     }
@@ -1819,697 +1822,12 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         document.getElementById('recommendationSection').classList.remove('hidden');
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else if (err.message === "JSON_PARSE_ERROR") {
+          showToast("AI 응답 데이터가 방대해 처리가 끊겼습니다. 옵션을 조금 줄여서 다시 시도해주세요.");
         } else {
-          showToast("일정 생성에 실패했습니다. (API 오류). 다시 시도해주세요.");
+          showToast("일정 생성에 실패했습니다. 다시 시도해주세요.");
         }
       }
     };
 
-    async function callGeminiAPI(payload, customKey, retries = 5, delay = 1000) {
-      const apiKey = customKey || "";
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-      
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          if (response.status === 400 || response.status === 403) {
-             throw new Error("API_KEY_ERROR");
-          }
-          throw new Error(`HTTP Error Status: ${response.status}`);
-        }
-
-        const resJson = await response.json();
-        const responseText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
-        
-        if (!responseText) {
-          throw new Error("No candidates received from Gemini API response.");
-        }
-
-        return JSON.parse(responseText.trim());
-
-      } catch (error) {
-        if (error.message !== "API_KEY_ERROR" && retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return callGeminiAPI(payload, customKey, retries - 1, delay * 2);
-        }
-        throw error;
-      }
-    }
-
-    window.tuneItineraryDayWithAI = async function() {
-      if (!state.activePlan) return;
-      const selectedDay = parseInt(document.getElementById('aiTunerDaySelect').value, 10);
-      const instruction = document.getElementById('aiTunerInstruction').value.trim();
-
-      if (!instruction) {
-        showToast("일정을 어떻게 변경하고 싶으신지 세부 내용을 적어주세요!");
-        return;
-      }
-
-      const loader = document.getElementById('aiTunerLoader');
-      loader.classList.remove('hidden');
-
-      const targetDayIndex = state.activePlan.itinerary.findIndex(d => d.day === selectedDay);
-      if (targetDayIndex === -1) {
-        loader.classList.add('hidden');
-        showToast("선택된 일자를 찾을 수 없습니다.");
-        return;
-      }
-
-      const targetDayData = state.activePlan.itinerary[targetDayIndex];
-
-      const systemPrompt = `You are an elite, highly-responsive travel expert planner.
-The user wants to update the itinerary for a SPECIFIC single day of their ongoing trip.
-You MUST rewrite only this specific day's activities and summary based on the user's modifications (e.g., changing weather, tiredness, new interests).
-Ensure the activities are logically timed, exciting, localized, and contain realistic googleMapsQuery terms.
-Output MUST strictly match the specified JSON schema format. Do NOT wrap in any extra markdown text outside the valid JSON.`;
-
-      const promptText = `Destination: ${state.tripInput.destination}
-Companions: ${getCompanionsTextDesc()}
-Target Day to Tune: Day ${selectedDay}
-Current Itinerary for Day ${selectedDay}: ${JSON.stringify(targetDayData)}
-User Modification Request: "${instruction}"`;
-
-      const payload = {
-        contents: [{ parts: [{ text: promptText }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "OBJECT",
-            properties: {
-              daySummary: { type: "STRING" },
-              activities: {
-                type: "ARRAY",
-                items: {
-                  type: "OBJECT",
-                  properties: {
-                    time: { type: "STRING" },
-                    title: { type: "STRING" },
-                    description: { type: "STRING" },
-                    googleMapsQuery: { type: "STRING" },
-                    cost: { type: "INTEGER" },
-                    category: { type: "STRING" },
-                    imageUrl: { type: "STRING" }
-                  },
-                  required: ["time", "title", "description", "googleMapsQuery", "cost", "category", "imageUrl"]
-                }
-              }
-            },
-            required: ["daySummary", "activities"]
-          }
-        }
-      };
-
-      let userKey = document.getElementById('inputApiKey').value.trim();
-      const apiKeyToUse = userKey || "";
-
-      try {
-        const revisedDayData = await callGeminiAPI(payload, apiKeyToUse);
-        
-        state.activePlan.itinerary[targetDayIndex].daySummary = revisedDayData.daySummary;
-        state.activePlan.itinerary[targetDayIndex].activities = revisedDayData.activities;
-
-        await saveTripToCloud();
-        
-        document.getElementById('aiTunerInstruction').value = '';
-        loader.classList.add('hidden');
-        showToast(`DAY ${selectedDay} 일정이 성공적으로 변경되었습니다!`);
-
-        scrollToTimelineDay(selectedDay);
-
-      } catch (err) {
-        console.error("AI Day Tuner failed:", err);
-        loader.classList.add('hidden');
-        showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
-      }
-    };
-
-    window.analyzeBudgetWithAI = async function() {
-      if (!state.activePlan) return;
-
-      const btn = document.getElementById('btnAiBudgetOptimize');
-      const loader = document.getElementById('aiBudgetProgressMini');
-      
-      btn.disabled = true;
-      loader.classList.remove('hidden');
-
-      const systemPrompt = `You are a savvy travel budget optimizer and localized financial planner.
-Analyze the user's travel budget list for their specific destination and companions.
-Provide an expert evaluation of their spending, list 2-3 localized high-value tourist discount deals or transportation passes (e.g., Tokyo Subway Pass, Osaka Amazing Pass) relevant to their destination, and list 3 practical local cost reduction tips.
-Output MUST strictly match the specified JSON schema format. Do NOT wrap in any extra markdown text outside the valid JSON.`;
-
-      const promptText = `Destination: ${state.tripInput.destination}
-Companions: ${getCompanionsTextDesc()}
-Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
-
-      const payload = {
-        contents: [{ parts: [{ text: promptText }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "OBJECT",
-            properties: {
-              overallEvaluation: { type: "STRING" },
-              localDeals: {
-                type: "ARRAY",
-                items: {
-                  type: "OBJECT",
-                  properties: {
-                    dealName: { type: "STRING" },
-                    description: { type: "STRING" },
-                    expectedSavings: { type: "STRING" }
-                  },
-                  required: ["dealName", "description", "expectedSavings"]
-                }
-              },
-              savingTips: {
-                type: "ARRAY",
-                items: { type: "STRING" }
-              }
-            },
-            required: ["overallEvaluation", "localDeals", "savingTips"]
-          }
-        }
-      };
-
-      let userKey = document.getElementById('inputApiKey').value.trim();
-      const apiKeyToUse = userKey || "";
-
-      try {
-        const analysis = await callGeminiAPI(payload, apiKeyToUse);
-        
-        state.activePlan.aiBudgetAnalysis = analysis;
-        await saveTripToCloud();
-
-        renderAiBudgetAnalysisUI();
-        showToast("AI 예산 최적화 분석 리포트가 완성되었습니다!");
-      } catch (err) {
-        console.error("AI Budget Optimization failed:", err);
-        showToast("예산 분석 도중 오류가 발생했습니다.");
-      } finally {
-        btn.disabled = false;
-        loader.classList.add('hidden');
-      }
-    };
-
-    function renderAiBudgetAnalysisUI() {
-      if (!state.activePlan || !state.activePlan.aiBudgetAnalysis) {
-        document.getElementById('aiBudgetAnalysisBanner').classList.add('hidden');
-        return;
-      }
-
-      const analysis = state.activePlan.aiBudgetAnalysis;
-      document.getElementById('aiBudgetAnalysisBanner').classList.remove('hidden');
-
-      document.getElementById('aiBudgetEvaluation').innerText = analysis.overallEvaluation;
-
-      const dealsList = document.getElementById('aiBudgetDealsList');
-      dealsList.innerHTML = '';
-      analysis.localDeals.forEach(deal => {
-        const li = document.createElement('li');
-        li.className = "mb-2";
-        li.innerHTML = `<strong>${deal.dealName}</strong>: ${deal.description} <span class="text-emerald-700 font-bold">(${deal.expectedSavings} 절감 예상)</span>`;
-        dealsList.appendChild(li);
-      });
-
-      const tipsList = document.getElementById('aiBudgetTipsList');
-      tipsList.innerHTML = '';
-      analysis.savingTips.forEach(tip => {
-        const li = document.createElement('li');
-        li.innerText = tip;
-        tipsList.appendChild(li);
-      });
-    }
-
-    function renderActivePlanDashboard() {
-      if (!state.activePlan) return;
-
-      const plan = state.activePlan;
-
-      document.getElementById('wizardSection').classList.add('hidden');
-      document.getElementById('recommendationSection').classList.add('hidden');
-      document.getElementById('dashboardSection').classList.remove('hidden');
-
-      document.getElementById('tripTitleDisplay').innerText = plan.tripName || `${state.tripInput.destination} 여행 일정`;
-      document.getElementById('tripPeriodDisplay').innerHTML = `
-        <i class="fa-solid fa-calendar mr-1"></i> 일정: ${state.tripInput.startDate} ~ ${state.tripInput.endDate} | 
-        <i class="fa-solid fa-users ml-2 mr-1"></i> 구성원: ${getCompanionsTextDesc()}
-      `;
-
-      const displaySpan = document.getElementById('tripIdDisplaySpan');
-      if (displaySpan) {
-        displaySpan.innerText = state.tripId || '불러오는 중...';
-      }
-
-      const daySelect = document.getElementById('aiTunerDaySelect');
-      daySelect.innerHTML = '';
-      plan.itinerary.forEach(dayData => {
-        const opt = document.createElement('option');
-        opt.value = dayData.day;
-        opt.className = "text-slate-900";
-        opt.innerText = `DAY ${dayData.day} (${dayData.date})`;
-        daySelect.appendChild(opt);
-      });
-
-      renderItinerarySidebar(plan.itinerary);
-      renderItineraryTimeline(plan.itinerary);
-      renderChecklistTab(plan.checklist);
-      renderBudgetTab(plan.budget);
-      renderAiBudgetAnalysisUI();
-    }
-
-    window.switchTab = function(tabName) {
-      state.activeTab = tabName;
-      
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.className = "tab-btn px-4 py-2 text-xs font-bold rounded-lg transition duration-200 text-slate-600 hover:text-slate-900 flex items-center space-x-1.5";
-      });
-
-      const activeBtn = document.getElementById(`tabBtn-${tabName}`);
-      activeBtn.className = "tab-btn px-4 py-2 text-xs font-bold rounded-lg transition duration-200 bg-white text-indigo-600 shadow-sm flex items-center space-x-1.5";
-
-      document.getElementById('tabContent-itinerary').classList.add('hidden');
-      document.getElementById('tabContent-checklist').classList.add('hidden');
-      document.getElementById('tabContent-budget').classList.add('hidden');
-
-      document.getElementById(`tabContent-${tabName}`).classList.remove('hidden');
-    };
-
-    function renderItinerarySidebar(itinerary) {
-      const container = document.getElementById('daySelectorContainer');
-      container.innerHTML = '';
-
-      itinerary.forEach((dayData, idx) => {
-        const btn = document.createElement('button');
-        btn.onclick = () => scrollToTimelineDay(dayData.day);
-        btn.className = "w-full text-left p-3 rounded-xl hover:bg-slate-50 transition duration-150 flex items-center space-x-3 border border-transparent hover:border-slate-100 group";
-        btn.innerHTML = `
-          <div class="bg-indigo-50 text-indigo-600 font-bold w-9 h-9 rounded-lg flex flex-col items-center justify-center flex-shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition">
-            <span class="text-xs">DAY</span>
-            <span class="text-xs -mt-1">${dayData.day}</span>
-          </div>
-          <div class="overflow-hidden">
-            <p class="text-xs font-bold text-slate-800">${dayData.date || `D-${dayData.day}`}</p>
-            <p class="text-[11px] text-slate-400 truncate mt-0.5">${dayData.daySummary || '즐거운 일정'}</p>
-          </div>
-        `;
-        container.appendChild(btn);
-      });
-    }
-
-    function scrollToTimelineDay(dayNum) {
-      const el = document.getElementById('timeline-day-' + dayNum);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-
-    function renderItineraryTimeline(itinerary) {
-      const container = document.getElementById('itineraryTimelineContainer');
-      container.innerHTML = '';
-
-      itinerary.forEach((dayData) => {
-        const dayCard = document.createElement('div');
-        dayCard.id = 'timeline-day-' + dayData.day;
-        dayCard.className = "bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 scroll-mt-20";
-
-        let dailyMapUrl = '#';
-        if (dayData.activities && dayData.activities.length > 0) {
-            if (dayData.activities.length === 1) {
-                dailyMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dayData.activities[0].googleMapsQuery || dayData.activities[0].title)}`;
-            } else {
-                const origin = encodeURIComponent(dayData.activities[0].googleMapsQuery || dayData.activities[0].title);
-                const dest = encodeURIComponent(dayData.activities[dayData.activities.length - 1].googleMapsQuery || dayData.activities[dayData.activities.length - 1].title);
-                let waypointsStr = '';
-                if (dayData.activities.length > 2) {
-                    const middleActs = dayData.activities.slice(1, -1);
-                    const wpArray = middleActs.map(a => encodeURIComponent(a.googleMapsQuery || a.title));
-                    waypointsStr = '&waypoints=' + wpArray.join('%7C');
-                }
-                dailyMapUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}${waypointsStr}`;
-            }
-        }
-
-        dayCard.innerHTML = `
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-3">
-            <div class="flex items-center space-x-3">
-              <span class="bg-indigo-600 text-white font-black px-3 py-1 rounded-lg text-sm">DAY ${dayData.day}</span>
-              <h3 class="text-base font-extrabold text-slate-900">${dayData.date}</h3>
-            </div>
-            
-            <div class="flex items-center space-x-2">
-              <span class="text-xs font-medium text-slate-500 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-                <i class="fa-solid fa-compass text-indigo-500 mr-1"></i> ${dayData.daySummary || '인기 관광 코스'}
-              </span>
-              <a href="${dailyMapUrl}" target="_blank" class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center shadow-sm">
-                <i class="fa-solid fa-map-location-dot mr-1.5 text-emerald-600"></i>오늘의 전체 동선 구글지도
-              </a>
-            </div>
-          </div>
-        `;
-
-        const timelineList = document.createElement('div');
-        timelineList.className = "relative border-l border-slate-100 pl-4 ml-3 space-y-6 pt-3";
-
-        dayData.activities.forEach((act) => {
-          const actItem = document.createElement('div');
-          actItem.className = "relative group";
-
-          let iconClass = "fa-solid fa-map-pin text-indigo-500 bg-indigo-50";
-          if (act.category.toLowerCase().includes('food') || act.category.includes('식비') || act.category.includes('식사')) {
-            iconClass = "fa-solid fa-utensils text-emerald-500 bg-emerald-50";
-          } else if (act.category.toLowerCase().includes('hotel') || act.category.includes('숙소') || act.category.includes('숙박')) {
-            iconClass = "fa-solid fa-hotel text-amber-500 bg-amber-50";
-          } else if (act.category.toLowerCase().includes('transit') || act.category.includes('교통') || act.category.includes('이동')) {
-            iconClass = "fa-solid fa-car text-sky-500 bg-sky-50";
-          }
-
-          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.googleMapsQuery || act.title)}`;
-
-          actItem.innerHTML = `
-            <div class="absolute -left-[27px] top-1 w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-sm ${iconClass} border border-white z-10"></div>
-            
-            <div class="bg-slate-50 rounded-xl p-4 border border-transparent hover:border-slate-200 hover:bg-white transition duration-200">
-              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                <div class="flex-grow">
-                  <span class="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">${act.time}</span>
-                  <h4 class="text-sm font-extrabold text-slate-900 mt-1 flex items-center">
-                    <span>${act.title}</span>
-                  </h4>
-                  <p class="text-xs text-slate-600 mt-1.5 leading-relaxed whitespace-pre-wrap">${act.description}</p>
-                  ${act.imageUrl ? `<div class="text-[10px] text-slate-400 bg-slate-200/40 px-2 py-1.5 rounded-lg inline-block font-mono mt-2">${act.imageUrl}</div>` : ''}
-                </div>
-                
-                <a href="${mapsUrl}" target="_blank" class="self-start sm:self-center bg-white border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center space-x-1.5 shadow-sm transition flex-shrink-0 mt-2 sm:mt-0">
-                  <i class="fa-solid fa-location-dot text-red-500"></i>
-                  <span>단일 장소 검색</span>
-                </a>
-              </div>
-              
-              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                <span><i class="fa-solid fa-coins mr-1"></i> 예상 경비: ${act.cost ? `₩${act.cost.toLocaleString()}` : '무료 / 포함'}</span>
-                <span class="uppercase tracking-wider font-bold text-[9px] text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded">${act.category}</span>
-              </div>
-            </div>
-          `;
-          timelineList.appendChild(actItem);
-        });
-
-        dayCard.appendChild(timelineList);
-        container.appendChild(dayCard);
-      });
-    }
-
-    function renderChecklistTab(checklist) {
-      const container = document.getElementById('checklistGroupsContainer');
-      container.innerHTML = '';
-
-      const groups = {};
-      checklist.forEach(item => {
-        const cat = item.category || '기타 필수품';
-        if (!groups[cat]) groups[cat] = [];
-        groups[cat].push(item);
-      });
-
-      const total = checklist.length;
-      const completedCount = checklist.filter(i => i.completed).length;
-      const percent = total > 0 ? Math.round((completedCount / total) * 100) : 0;
-      
-      document.getElementById('checklistProgressBar').style.width = percent + '%';
-      document.getElementById('checklistProgressText').innerText = percent + '%';
-
-      Object.keys(groups).forEach(category => {
-        const catBox = document.createElement('div');
-        catBox.className = "bg-slate-50 border border-slate-200/60 rounded-2xl p-4 space-y-3";
-        catBox.innerHTML = `
-          <h4 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-2 flex justify-between items-center">
-            <span>${category}</span>
-            <span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full text-[10px] font-black">${groups[category].length}</span>
-          </h4>
-        `;
-
-        const list = document.createElement('div');
-        list.className = "space-y-2";
-
-        groups[category].forEach(item => {
-          const itemDiv = document.createElement('div');
-          itemDiv.className = "flex items-center justify-between bg-white px-3 py-2.5 rounded-xl border border-slate-100 shadow-xs hover:border-slate-200 transition";
-          
-          itemDiv.innerHTML = `
-            <div class="flex items-center space-x-2.5 flex-grow">
-              <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleChecklistItem('${item.id}')" class="w-4.5 h-4.5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer">
-              <span class="text-xs font-medium text-slate-700 ${item.completed ? 'line-through text-slate-400' : ''}">${item.item}</span>
-            </div>
-            <button onclick="deleteChecklistItem('${item.id}')" class="text-slate-300 hover:text-red-500 transition p-1 text-xs"><i class="fa-solid fa-trash-can"></i></button>
-          `;
-          list.appendChild(itemDiv);
-        });
-
-        catBox.appendChild(list);
-        container.appendChild(catBox);
-      });
-    }
-
-    window.toggleChecklistItem = function(itemId) {
-      if (!state.activePlan) return;
-      const item = state.activePlan.checklist.find(i => i.id === itemId);
-      if (item) {
-        item.completed = !item.completed;
-        renderChecklistTab(state.activePlan.checklist);
-        saveTripToCloud();
-      }
-    };
-
-    window.addChecklistItem = function(e) {
-      e.preventDefault();
-      const itemInput = document.getElementById('newChecklistItem');
-      const catSelect = document.getElementById('newChecklistCategory');
-      
-      const itemText = itemInput.value.trim();
-      const cat = catSelect.value;
-      if (!itemText || !state.activePlan) return;
-
-      const newItem = {
-        id: crypto.randomUUID(),
-        item: itemText,
-        category: cat,
-        completed: false
-      };
-
-      state.activePlan.checklist.push(newItem);
-      renderChecklistTab(state.activePlan.checklist);
-      
-      itemInput.value = '';
-      saveTripToCloud();
-    };
-
-    window.deleteChecklistItem = function(itemId) {
-      if (!state.activePlan) return;
-      state.activePlan.checklist = state.activePlan.checklist.filter(i => i.id !== itemId);
-      renderChecklistTab(state.activePlan.checklist);
-      saveTripToCloud();
-    };
-
-    function renderBudgetTab(budget) {
-      const tbody = document.getElementById('budgetTableBody');
-      tbody.innerHTML = '';
-
-      let total = 0;
-      const totalsByCategory = {};
-
-      budget.forEach(item => {
-        total += item.amount;
-        totalsByCategory[item.category] = (totalsByCategory[item.category] || 0) + item.amount;
-
-        const row = document.createElement('tr');
-        row.className = "border-b border-slate-50 hover:bg-slate-50 transition";
-        row.innerHTML = `
-          <td class="py-2.5">
-            <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">${item.category}</span>
-          </td>
-          <td class="py-2.5 font-semibold text-slate-800">${item.item}</td>
-          <td class="py-2.5 text-right font-bold text-slate-900">₩${item.amount.toLocaleString()}</td>
-          <td class="py-2.5 text-right">
-            <button onclick="deleteBudgetItem('${item.id}')" class="text-slate-300 hover:text-red-500 transition p-1 text-xs"><i class="fa-solid fa-trash-can"></i></button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      document.getElementById('totalBudgetDisplay').innerText = "₩ " + total.toLocaleString() + " 원";
-
-      const chartBarsContainer = document.getElementById('budgetChartBars');
-      chartBarsContainer.innerHTML = '';
-
-      Object.keys(totalsByCategory).forEach(category => {
-        const amt = totalsByCategory[category];
-        const pct = total > 0 ? Math.round((amt / total) * 100) : 0;
-
-        const bar = document.createElement('div');
-        bar.className = "space-y-1";
-        bar.innerHTML = `
-          <div class="flex justify-between text-[11px] font-bold">
-            <span class="text-slate-600">${category}</span>
-            <span class="text-slate-800">₩${amt.toLocaleString()} (${pct}%)</span>
-          </div>
-          <div class="w-full bg-slate-100 rounded-full h-1.5">
-            <div class="bg-indigo-600 h-1.5 rounded-full" style="width: ${pct}%"></div>
-          </div>
-        `;
-        chartBarsContainer.appendChild(bar);
-      });
-    }
-
-    window.toggleBudgetAddForm = function(show) {
-      const box = document.getElementById('budgetAddFormBox');
-      if (show) box.classList.remove('hidden');
-      else box.classList.add('hidden');
-    };
-
-    window.openAddBudgetModal = function() {
-      toggleBudgetAddForm(true);
-    };
-
-    window.addBudgetItem = function() {
-      const itemInput = document.getElementById('budgetInputItem');
-      const catSelect = document.getElementById('budgetInputCategory');
-      const amtInput = document.getElementById('budgetInputAmount');
-
-      const name = itemInput.value.trim();
-      const cat = catSelect.value;
-      const amount = parseInt(amtInput.value, 10);
-
-      if (!name || isNaN(amount) || !state.activePlan) {
-        showToast("정확한 예산명과 숫자 금액을 기록해 주세요!");
-        return;
-      }
-
-      const newItem = {
-        id: crypto.randomUUID(),
-        category: cat,
-        item: name,
-        amount: amount
-      };
-
-      state.activePlan.budget.push(newItem);
-      renderBudgetTab(state.activePlan.budget);
-
-      itemInput.value = '';
-      amtInput.value = '';
-      toggleBudgetAddForm(false);
-      
-      saveTripToCloud();
-    };
-
-    window.deleteBudgetItem = function(itemId) {
-      if (!state.activePlan) return;
-      state.activePlan.budget = state.activePlan.budget.filter(i => i.id !== itemId);
-      renderBudgetTab(state.activePlan.budget);
-      saveTripToCloud();
-    };
-
-    function copySharingLinkToClipboard() {
-      let link = window.location.origin + window.location.pathname + '?tripId=' + (state.tripId || '');
-      if (link.startsWith('blob:')) {
-        link = "블롭(Blob) 브라우저 격리 환경에서는 보안상 공유 링크 직접 접속이 제한됩니다. 초대 코드를 일행에게 전달해 주세요!";
-      }
-      
-      const copyText = `[가치갈래 (WanderSync) 실시간 여행 계획 초대장]
-일행이 설계한 실시간 맞춤 여행 계획에 초대받았습니다!
-
-■ 참여 방법 1 (링크 직접 접속):
-아래 링크를 복사하여 브라우저 주소창에 입력해 보세요:
-${link}
-
-■ 참여 방법 2 (위 링크 접속 시 404 에러가 발생할 때):
-1. 가치갈래(WanderSync) 앱 첫 화면으로 접속합니다.
-2. 화면 하단에 있는 '기존 일행의 여행 일정 불러오기' 입력칸에 아래 초대 코드를 붙여넣고 [일정 동기화] 버튼을 누르세요.
-
-★ 초대 코드 (Trip ID): ${state.tripId || ''}`;
-
-      const dummy = document.createElement("textarea");
-      document.body.appendChild(dummy);
-      dummy.value = copyText;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-      
-      showToast("초대장 템플릿과 초대 코드가 클립보드에 복사되었습니다!");
-    }
-
-    window.copyTripIdOnlyToClipboard = function() {
-      if (!state.tripId) return;
-      const dummy = document.createElement("input");
-      document.body.appendChild(dummy);
-      dummy.value = state.tripId;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-      showToast("초대 코드(Trip ID)만 성공적으로 복사되었습니다!");
-    }
-
-    function checkUrlParams() {
-      try {
-        if (window.location.href && !window.location.href.startsWith('blob:')) {
-          const urlParams = new URLSearchParams(window.location.search);
-          const tripIdFromUrl = urlParams.get('tripId');
-          if (tripIdFromUrl) {
-            state.tripId = tripIdFromUrl;
-          }
-        }
-      } catch (e) {
-        console.warn("Could not check URL parameters:", e);
-      }
-    }
-
-    function resetPlannerToWizard() {
-      if (confirm("새로운 여행을 계획하시겠습니까? 현재 화면의 기존 진행 내역은 초기화됩니다.")) {
-        try {
-          if (window.location.href && !window.location.href.startsWith('blob:')) {
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.delete('tripId');
-            window.history.pushState({ path: newUrl.href }, '', newUrl.href);
-          }
-        } catch (e) {
-          console.warn("Could not clean url parameter inside sandboxed environment:", e);
-        }
-
-        if (activeFirebaseDocListener) {
-          activeFirebaseDocListener();
-        }
-
-        state.activePlan = null;
-        state.tripId = null;
-        state.aiBudgetAnalysis = null;
-        state.tripInput.destinations = [];
-        renderSelectedDestinations();
-
-        document.getElementById('wizardSection').classList.remove('hidden');
-        document.getElementById('dashboardSection').classList.add('hidden');
-        document.getElementById('collabStatus').classList.add('hidden');
-        document.getElementById('collabBanner').classList.add('hidden');
-        document.getElementById('btnShareTrip').classList.add('hidden');
-        document.getElementById('aiBudgetAnalysisBanner').classList.add('hidden');
-
-        document.getElementById('detailedDestSelect').value = '';
-        document.getElementById('manualDestInput').value = '';
-        document.getElementById('hotelInput').value = '';
-        document.getElementById('fixedPlansContainer').innerHTML = `
-          <div class="flex items-center space-x-2 fixed-plan-row">
-            <input type="text" placeholder="예: 5월 1일에는 디즈니랜드 하루종일 방문" class="flex-grow px-3 py-1.5 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
-            <button type="button" onclick="removeFixedPlanRow(this)" class="text-red-500 p-1 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash text-xs"></i></button>
-          </div>
-        `;
-      }
-    }
-
-  </script>
-</body>
-</html>
+    async function callGeminiAPI(payload, customKey, retries = 5
