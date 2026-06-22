@@ -306,7 +306,7 @@
             <!-- Hotel Style -->
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">희망하는 호텔 스타일/숙소 타입</label>
-              <input type="text" id="hotelInput" placeholder="예: 온천이 있는 료칸, 조식 맛집 4성급 호텔 등" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <input type="text" id="hotelInput" placeholder="예: 온천이 있는 료칸, 수영장이 있는 4성급 호텔 등" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
             </div>
             <!-- Flight time preferences -->
             <div class="grid grid-cols-2 gap-3">
@@ -337,7 +337,7 @@
             <!-- Extra requests -->
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">이 외 특별 요청사항</label>
-              <textarea id="customNotesInput" rows="2" placeholder="예: 너무 타이트하지 않게 일정을 짜주세요. 아동 맞춤 캐릭터샵도 원합니다." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
+              <textarea id="customNotesInput" rows="2" placeholder="예: 너무 타이트하지 않게 일정을 짜주세요. 아동 맞춤 캐릭터샵이나 장난감 매장 동선도 원합니다." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
             </div>
             <!-- Fixed Plans -->
             <div>
@@ -392,7 +392,7 @@
       </div>
       <h3 class="text-xl font-bold text-slate-900 mt-8">Gemini AI가 가장 똑똑한 여행 코스를 그리는 중...</h3>
       <p class="text-slate-500 text-sm mt-2 text-center max-w-md px-4">
-        요청하신 동행 특징과 최신 데이터를 조합해 국내/해외를 아우르는 맞춤형 일정, 식사, 체크리스트 및 초기 예산을 생성하고 있습니다. 잠시만 기다려주세요!
+        요청하신 동행 특징과 최신 구글 맵 데이터, 대형 커뮤니티 추천 코스를 조합해 일자별 완벽한 타임라인, 식사, 맞춤 체크리스트 및 초기 예산을 생성하고 있습니다. 잠시만 기다려주세요!
       </p>
       <!-- Simulation Status -->
       <div class="mt-6 flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-xs font-semibold">
@@ -776,7 +776,7 @@
     auth = getAuth(app);
     db = getFirestore(app);
 
-    // Dynamic Destinations Database Map
+    // 🚨 FIXED: Expanded 10 popular Domestic Destinations to prevent manual typing errors
     const destOptions = {
       domestic: {
         seoul: "서울",
@@ -785,6 +785,11 @@
         gangneung: "강릉/속초",
         gyeongju: "경주",
         yeosu: "여수",
+        jeonju: "전주",
+        chuncheon: "춘천/평창",
+        tongyeong: "통영/거제",
+        mokpo: "목포",
+        incheon: "인천",
         custom: "직접 입력"
       },
       intl: {
@@ -849,7 +854,7 @@
       isGenerating: false,
       tripId: null,
       tripInput: {
-        destType: '', // domestic | intl
+        destType: '',
         continent: '',
         destinations: [], 
         destination: '', 
@@ -1296,12 +1301,13 @@
       loader.classList.remove('hidden');
       document.getElementById('loaderStatusMsg').innerText = "현지 최신 항공, 호텔, 식당, 교통 패스 옵션을 정밀 분석하여 5~10개씩의 디테일 리스트를 생성하는 중...";
 
-      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, flight time frames, and companion structure, generate a rough daily brief itinerary and 5 to 10 realistic high-quality candidates for Flights, Hotels, Restaurants, and Transportation options.
-CRITICAL FOR DOMESTIC TRAVEL: If actual airplane flights are rare or not applicable for the destination (e.g., domestic trips within Korea like Seoul to Gangneung/Busan), you MUST populate the 'flights' array with KTX, SRT, or Express Bus options instead, using the 'airline' field for the transport company name (e.g. KTX, SRT, 고속버스).
-CRITICAL: ALL responses, descriptions, titles, airline names, and guides MUST be written in Korean. Do NOT use English names for airlines (e.g. use 피치항공, 티웨이항공, 에어부산, 일본항공(JAL), 전일본공수(ANA), 대한항공, 아시아나항공, 제주항공, 진에어, 이스타항공 instead of English equivalents).
+      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, flight time frames, and companion structure, generate a rough daily brief itinerary and 4 to 10 realistic high-quality candidates for Flights/Main Transit, Hotels, Restaurants, and Local Transportation options.
+CRITICAL FOR DOMESTIC TRAVEL (like Jeonju, Gyeongju): If actual airplane flights are rare or not applicable, you MUST populate the 'flights' array with KTX, SRT, ITX, or Express Bus options instead, using the 'airline' field for the transport company name (e.g. KTX, SRT, 프리미엄 고속버스).
+CRITICAL: ALL responses, descriptions, titles, airline names, and guides MUST be written in Korean. Do NOT use English names.
+If 10 options are not realistic for a smaller city, providing 4~6 highly accurate options is better than hallucinating.
 For flights/main transit, design logical times and cost in KRW.
 For transportation, suggest train tickets, subway cards, rental cars, or bus passes with detailed boarding point locations, exact purchase/reservation instructions, and boarding platform descriptions.
-For food/restaurants, you MUST specify 1-2 recommended signature menu items tailored to the companions. Write the menu name in BOTH the local language and Korean (e.g., "ハンバーグ (함박스테이크)"). ALSO, insert an image marker exactly like "" next to the menu so the user can show it to the staff.
+For food/restaurants, you MUST specify 1-2 recommended signature menu items tailored to the companions. Write the menu name in BOTH the local language and Korean (e.g., "ハンバーグ (함박스테이크)" or "비빔밥"). ALSO, insert an image marker exactly like "" next to the menu so the user can show it to the staff.
 For 'googleMapsQuery', provide a concise and highly accurate search term without extra sentences.
 Your response MUST strictly conform to the provided JSON schema. No additional text wrappers.`;
 
@@ -1639,14 +1645,14 @@ Special request: ${customNotes || 'None'}`;
     window.triggerFinalItineraryAIGenerator = async function() {
       const sel = state.selectedSelections;
       if (!sel.flight || !sel.hotel || sel.restaurants.length === 0 || !sel.transit) {
-        showToast("원활한 플랜 작성을 위해 모든 분류(항공, 호텔, 맛집, 대중교통)를 최소 1개 이상 골라주세요!");
+        showToast("원활한 플랜 작성을 위해 모든 분류(항공/교통, 호텔, 맛집, 대중교통)를 최소 1개 이상 골라주세요!");
         return;
       }
 
       document.getElementById('recommendationSection').classList.add('hidden');
       const loader = document.getElementById('loaderSection');
       loader.classList.remove('hidden');
-      document.getElementById('loaderStatusMsg').innerText = "최종 선택한 교통 수단, 호텔, 비행 일정을 일정표에 정밀 합성 중...";
+      document.getElementById('loaderStatusMsg').innerText = "최종 선택한 교통 수단, 호텔, 일정을 일정표에 정밀 합성 중...";
 
       const systemPrompt = `You are an elite, thorough custom travel designer.
 You must construct a complete day-by-day itinerary in Korean for the user, integrating their chosen items EXACTLY as specified below.
@@ -1654,8 +1660,8 @@ Anchor their entire lodging schedule around their selected Hotel.
 Log their arrival and departure around their selected Flight time schedules.
 Integrate their selected Restaurants on logical days as lunchtime points of interest.
 Incorporate their chosen Transit system into their daily commuting routines.
-CRITICAL DETAIL REQUIREMENT: For EVERY activity, you MUST provide hyper-detailed guides. Do not just say "Take a train". Say exactly which line, which station platform to go to, and link ticketing apps (like SmartEX, Klook, or local transport sites).
-For food, you MUST recommend specific menu items matching the companions. Write the menu name in the local language AND Korean (e.g., "ハンバーグ (함박스테이크)"). Insert an image marker exactly like "" right next to it so the user can show the picture to restaurant staff.
+CRITICAL DETAIL REQUIREMENT: For EVERY activity, you MUST provide hyper-detailed guides. Do not just say "Take a train". Say exactly which line, which station platform to go to, and link ticketing apps (like Klook, or local transport sites).
+For food, you MUST recommend specific menu items matching the companions. Write the menu name in the local language AND Korean. Insert an image marker exactly like "" right next to it so the user can show the picture to restaurant staff.
 Every day must feature structured travel items, each with a concise 'googleMapsQuery' without spaces/extra descriptions, precise time stamps, strict category tags, expected budgets in KRW, boarding spot descriptions, and ticket guidelines.
 Output MUST strictly match the specified JSON schema format. Do NOT wrap in any extra markdown text outside the valid JSON.`;
 
@@ -1819,7 +1825,6 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
-    // 🚨 FIXED: Detect 400/403 errors indicating an invalid/missing API key on external platforms (like Vercel)
     async function callGeminiAPI(payload, customKey, retries = 5, delay = 1000) {
       const apiKey = customKey || "";
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
@@ -1941,11 +1946,7 @@ User Modification Request: "${instruction}"`;
       } catch (err) {
         console.error("AI Day Tuner failed:", err);
         loader.classList.add('hidden');
-        if (err.message === "API_KEY_ERROR") {
-          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
-        } else {
-          showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
-        }
+        showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
       }
     };
 
@@ -2011,11 +2012,7 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         showToast("AI 예산 최적화 분석 리포트가 완성되었습니다!");
       } catch (err) {
         console.error("AI Budget Optimization failed:", err);
-        if (err.message === "API_KEY_ERROR") {
-          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
-        } else {
-          showToast("예산 분석 도중 오류가 발생했습니다.");
-        }
+        showToast("예산 분석 도중 오류가 발생했습니다.");
       } finally {
         btn.disabled = false;
         loader.classList.add('hidden');
@@ -2134,7 +2131,6 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
       }
     }
 
-    // 🗺️ FIXED: Map Links URL Encoding to prevent 404/Bad Request errors in Direction links
     function renderItineraryTimeline(itinerary) {
       const container = document.getElementById('itineraryTimelineContainer');
       container.innerHTML = '';
