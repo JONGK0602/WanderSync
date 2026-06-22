@@ -1252,7 +1252,7 @@
       renderCandidateOptions();
     };
 
-    // 🚨 SAFE PARSER FIX: Reduced option count to 3 to strictly prevent "Unexpected end of input" on Gemini Flash
+    // 🚨 SAFE PARSER FIX: Reduced option count to 3 to strictly prevent "Unexpected end of input"
     async function triggerIntermediateOptionsSearch() {
       if (!validateStep()) return;
 
@@ -1433,7 +1433,7 @@ Special request: ${customNotes || 'None'}`;
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 우측 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
+          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
           showToast("AI 데이터 분석 중 일시적인 구조 오류가 발생했습니다. 조금만 뒤에 다시 시도해 주세요.");
         } else {
@@ -1812,7 +1812,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
+          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
           showToast("일정표를 구성하는 도중 데이터가 손상되었습니다. 다시 한 번 [맞춤 일정표 생성] 버튼을 눌러주세요.");
         } else {
@@ -1821,15 +1821,18 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
-    // 🚨 STRICT JSON EXTRACTOR & SMART FALLBACK: Safely extracts JSON even if AI adds conversational text
+    // 🚨 STRICT JSON EXTRACTOR & SMART FALLBACK: Handles Vercel 404s and strips out AI conversational text safely
     async function callGeminiAPI(payload, customKey, retries = 3, delay = 1500) {
       const apiKey = customKey || "";
-      const models = [
-        "gemini-2.5-flash-preview-09-2025", 
-        "gemini-1.5-flash-latest",
-        "gemini-1.5-flash",
-        "gemini-1.5-pro-latest"
-      ];
+      // 내부망이면 preview 모델, 외부망(API키 있음)이면 최신 모델 순차 시도
+      const models = apiKey === "" 
+          ? ["gemini-2.5-flash-preview-09-2025"] 
+          : [
+              "gemini-2.5-flash",
+              "gemini-1.5-flash",
+              "gemini-1.5-pro",
+              "gemini-pro"
+            ];
 
       let lastError;
 
@@ -1877,19 +1880,32 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
             try {
                 return JSON.parse(responseText);
             } catch (parseError) {
-                console.error("JSON Parsing failed. Raw text:", responseText);
-                throw new Error("JSON_PARSE_ERROR");
+                console.warn("Attempting to auto-repair truncated JSON...");
+                let repaired = responseText.replace(/,\s*"[^"]*":?\s*$/, '').replace(/,\s*$/, '');
+                let openBraces = (repaired.match(/\{/g) || []).length;
+                let closeBraces = (repaired.match(/\}/g) || []).length;
+                let openBrackets = (repaired.match(/\[/g) || []).length;
+                let closeBrackets = (repaired.match(/\]/g) || []).length;
+
+                while (openBrackets > closeBrackets) { repaired += ']'; closeBrackets++; }
+                while (openBraces > closeBraces) { repaired += '}'; closeBraces++; }
+
+                try {
+                    return JSON.parse(repaired);
+                } catch (secondError) {
+                    console.error("Auto-repair failed. Raw text:", responseText);
+                    throw new Error("JSON_PARSE_ERROR");
+                }
             }
 
           } catch (error) {
-            if (error.message === "API_KEY_ERROR") {
+            if (error.message === "API_KEY_ERROR" || error.message === "JSON_PARSE_ERROR") {
                throw error; 
             }
             lastError = error;
             if (error.message === "MODEL_NOT_FOUND") {
                 continue; 
             }
-            // For JSON_PARSE_ERROR or other HTTP errors, break out of model loop and trigger retry
             break; 
           }
         }
@@ -1993,7 +2009,7 @@ User Modification Request: "${instruction}"`;
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
+          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
         } else {
           showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
         }
@@ -2063,7 +2079,13 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         showToast("AI 예산 최적화 분석 리포트가 완성되었습니다!");
       } catch (err) {
         console.error("AI Budget Optimization failed:", err);
-        showToast("예산 분석 도중 오류가 발생했습니다.");
+        if (err.message === "API_KEY_ERROR") {
+          showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else if (err.message === "ALL_MODELS_404") {
+          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
+        } else {
+          showToast("예산 분석 도중 오류가 발생했습니다.");
+        }
       } finally {
         btn.disabled = false;
         loader.classList.add('hidden');
