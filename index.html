@@ -92,7 +92,7 @@
           <i class="fa-solid fa-circle-info"></i>
         </div>
         <h3 class="text-lg font-extrabold text-slate-900">가치갈래 실시간 협업 & 외부 배포 가이드</h3>
-        <p class="text-xs text-slate-500 mt-1 text-red-500 font-semibold">※ 외부(Vercel 등) 배포 후 오류가 발생한다면 필독!</p>
+        <p class="text-xs text-slate-500 mt-1 text-red-500 font-semibold">※ 외부 배포 후 오류가 발생한다면 필독!</p>
       </div>
 
       <div class="space-y-4 text-xs leading-relaxed text-slate-600">
@@ -100,7 +100,7 @@
           <i class="fa-solid fa-triangle-exclamation text-red-500 mt-1"></i>
           <div>
             <h4 class="font-bold text-red-900">외부 배포 시 API KEY 필수 입력!</h4>
-            <p class="mt-0.5 text-red-800">미리보기 화면이 아닌 Vercel 등에 직접 배포한 사이트에서는 구글이 무료 API 연결을 막습니다. <strong>우측 상단 [Gemini API Key] 칸에 본인이 발급받은 실제 API 키를 넣어야만</strong> 후보지 검색과 일정 생성이 작동합니다.</p>
+            <p class="mt-0.5 text-red-800">미리보기 화면이 아닌 Vercel 등에 배포한 사이트에서는 <strong>우측 상단 [Gemini API Key] 칸에 본인이 발급받은 실제 API 키를 넣어야만</strong> 작동합니다.</p>
           </div>
         </div>
 
@@ -108,18 +108,7 @@
           <span class="bg-indigo-600 text-white font-black w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">1</span>
           <div>
             <h4 class="font-bold text-slate-900">초대 정보 복사 및 동기화</h4>
-            <p class="mt-0.5">일정 생성 후 하단의 <strong class="text-indigo-600">초대 링크 복사</strong>를 누르면 <strong>초대 링크</strong>와 <strong>초대 코드(Trip ID)</strong>가 복사됩니다. 친구가 404 에러를 겪는다면 첫 화면 하단에 이 코드를 붙여넣도록 안내하세요.</p>
-          </div>
-        </div>
-
-        <div class="flex items-start space-x-3 bg-indigo-50 border border-indigo-100 p-3 rounded-xl">
-          <span class="bg-indigo-600 text-white font-black w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">2</span>
-          <div>
-            <h4 class="font-bold text-indigo-950 flex items-center">
-              <span>Firebase 서버 직접 구축 안내</span>
-            </h4>
-            <p class="mt-0.5 text-indigo-900/90 font-medium">Vercel에서 실시간 동기화(공유) 기능을 완벽히 쓰려면,</p>
-            <p class="mt-1">소스 코드 하단의 `defaultFirebaseConfig` 부분을 <strong>본인이 직접 만든 Firebase 프로젝트의 환경설정(Config) 값으로 교체</strong>해야 동기화 서버가 정상적으로 활성화됩니다.</p>
+            <p class="mt-0.5">대시보드 하단의 <strong class="text-indigo-600">초대 링크 복사</strong>를 누르면 <strong>초대 링크</strong>와 <strong>초대 코드(Trip ID)</strong>가 함께 복사됩니다. 친구가 404 에러를 겪는다면, 앱 첫 화면 하단에 이 코드를 붙여넣도록 안내하세요.</p>
           </div>
         </div>
       </div>
@@ -392,12 +381,12 @@
       </div>
       <h3 class="text-xl font-bold text-slate-900 mt-8">Gemini AI가 가장 똑똑한 여행 코스를 그리는 중...</h3>
       <p class="text-slate-500 text-sm mt-2 text-center max-w-md px-4">
-        요청하신 동행 특징과 최신 구글 맵 데이터, 대형 커뮤니티 추천 코스를 조합해 안전하게 데이터를 가공하고 있습니다. 잠시만 기다려주세요!
+        요청하신 동행 특징과 최신 데이터를 바탕으로 일자별 완벽한 타임라인, 식사, 체크리스트를 정밀 분석하고 있습니다. 잠시만 기다려주세요!
       </p>
       <!-- Simulation Status -->
       <div class="mt-6 flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-xs font-semibold">
         <i class="fa-solid fa-spinner animate-spin"></i>
-        <span id="loaderStatusMsg">현지 데이터 분석 중...</span>
+        <span id="loaderStatusMsg">현지 데이터 수집 및 병합 중...</span>
       </div>
     </div>
 
@@ -406,7 +395,7 @@
       <div class="text-center border-b border-slate-100 pb-4">
         <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full"><i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i>AI 후보 옵션 선택</span>
         <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">✨ 여행 후보 항목 세부 조율 및 선택</h2>
-        <p class="text-slate-500 text-xs mt-1">AI가 추천하는 4가지 핵심 맞춤 항목을 왼쪽의 간략 일정표 동선에 맞춰 자유롭게 선택해 보세요.</p>
+        <p class="text-slate-500 text-xs mt-1">AI가 추천하는 3가지 핵심 맞춤 항목을 왼쪽의 간략 일정표 동선에 맞춰 자유롭게 선택해 보세요.</p>
       </div>
 
       <!-- Split Layout: Left Itinerary Guide, Right Option Tabs -->
@@ -434,7 +423,7 @@
             <button onclick="switchRecTab('transit')" id="recTabBtn-transit" class="rec-tab-btn flex-1 py-2 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900"><i class="fa-solid fa-train-subway mr-1.5"></i>현지이동수단</button>
           </div>
 
-          <!-- Option Pages dynamic containers with height limits and scrollbars -->
+          <!-- Option Pages dynamic containers -->
           <div id="recPage-flights" class="space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto custom-scrollbar pr-2 relative"></div>
           <div id="recPage-hotels" class="hidden space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto custom-scrollbar pr-2"></div>
           <div id="recPage-restaurants" class="hidden space-y-4 animate-fade-in max-h-[50vh] overflow-y-auto custom-scrollbar pr-2"></div>
@@ -547,7 +536,7 @@
                 </div>
                 <div>
                   <label class="block text-[10px] text-indigo-300 font-bold mb-1">어떻게 변경하고 싶으신가요?</label>
-                  <textarea id="aiTunerInstruction" rows="3" placeholder="예: 비가 오니까 실내 위주 동선으로 완전히 교체해줘 / 9살 아이 캐릭터샵 동선을 추가해줘" class="w-full bg-indigo-800 border border-indigo-700 text-white text-xs rounded-lg p-2 placeholder-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"></textarea>
+                  <textarea id="aiTunerInstruction" rows="3" placeholder="예: 비가 오니까 실내 위주 동선으로 완전히 교체해줘 / 아이 맞춤 동선을 추가해줘" class="w-full bg-indigo-800 border border-indigo-700 text-white text-xs rounded-lg p-2 placeholder-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"></textarea>
                 </div>
                 
                 <button onclick="tuneItineraryDayWithAI()" id="btnAiTuner" class="w-full bg-white hover:bg-indigo-50 text-indigo-950 font-bold text-xs py-2 px-3 rounded-xl transition duration-200 flex items-center justify-center space-x-1.5 shadow">
@@ -687,7 +676,7 @@
               <div class="grid grid-cols-2 gap-3">
                 <input type="text" id="budgetInputItem" placeholder="항목 이름 (예: 입장권)" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white">
                 <select id="budgetInputCategory" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white">
-                  <option value="항공">항공</option>
+                  <option value="항공">항공/메인교통</option>
                   <option value="숙박">숙박</option>
                   <option value="식비">식비</option>
                   <option value="액티비티">액티비티</option>
@@ -1263,7 +1252,7 @@
       renderCandidateOptions();
     };
 
-    // 🚨 FIXED: Reduced option count to 4 (stable JSON parsing) & Included MaxOutputTokens & Safe Parsing
+    // 🚨 FIXED: Reduced option count to 3 to GUARANTEE stable JSON parsing & Used SAFE fallback
     async function triggerIntermediateOptionsSearch() {
       if (!validateStep()) return;
 
@@ -1301,9 +1290,9 @@
       loader.classList.remove('hidden');
       document.getElementById('loaderStatusMsg').innerText = "현지 최신 데이터를 분석 중입니다. 데이터 양이 많아 약간의 시간이 소요될 수 있습니다...";
 
-      // ✨ OPTIMIZED PROMPT: Kept to 4 items to guarantee JSON parses correctly without truncation!
-      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, and companions, generate a brief daily itinerary and EXACTLY 4 high-quality candidates for Flights/Main Transit, Hotels, Restaurants, and Local Transportation.
-CRITICAL: To avoid JSON truncation errors, you MUST generate exactly 4 items per category. Keep all descriptions VERY CONCISE (1 short sentence max).
+      // ✨ OPTIMIZED PROMPT: Kept to 3 items to completely guarantee JSON never truncates.
+      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, and companions, generate a brief daily itinerary and EXACTLY 3 high-quality candidates for Flights/Main Transit, Hotels, Restaurants, and Local Transportation.
+CRITICAL: To avoid JSON truncation errors, you MUST generate exactly 3 items per category. Keep all descriptions VERY CONCISE (maximum 20 words per description).
 CRITICAL FOR DOMESTIC TRAVEL (like Jeonju, Gyeongju): If airplane flights are rare, populate the 'flights' array with KTX, SRT, or Express Bus options instead.
 CRITICAL: ALL text MUST be in Korean. 
 For food/restaurants, specify 1-2 menu items. Write the menu name in local language AND Korean. Insert an image marker like "" next to the menu.
@@ -1325,7 +1314,7 @@ Special request: ${customNotes || 'None'}`;
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: {
           responseMimeType: "application/json",
-          maxOutputTokens: 8192, // CRITICAL FIX TO PREVENT UNEXPECTED END OF INPUT
+          maxOutputTokens: 8192, 
           responseSchema: {
             type: "OBJECT",
             properties: {
@@ -1418,7 +1407,6 @@ Special request: ${customNotes || 'None'}`;
         const optionsData = await callGeminiAPI(payload, apiKeyToUse);
         state.recOptions = optionsData;
 
-        // Apply default sort to flights initially
         if (state.recOptions && state.recOptions.flights) {
           state.recOptions.flights.sort((a, b) => a.price - b.price);
           state.flightSort = 'price_asc';
@@ -1446,9 +1434,9 @@ Special request: ${customNotes || 'None'}`;
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "JSON_PARSE_ERROR") {
-          showToast("데이터가 너무 많아 응답이 중간에 끊겼습니다. 일정을 조금 줄여서 다시 시도해 주세요.");
+          showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 검색해 주세요.");
         } else {
-          showToast("후보지를 불러오는 도중 오류가 발생했습니다. 조건(특히 국내여행지)을 약간 변경해 다시 시도해 주세요.");
+          showToast("오류 발생: " + err.message);
         }
       }
     }
@@ -1648,7 +1636,7 @@ Special request: ${customNotes || 'None'}`;
     window.triggerFinalItineraryAIGenerator = async function() {
       const sel = state.selectedSelections;
       if (!sel.flight || !sel.hotel || sel.restaurants.length === 0 || !sel.transit) {
-        showToast("원활한 플랜 작성을 위해 모든 분류(항공, 호텔, 맛집, 대중교통)를 최소 1개 이상 골라주세요!");
+        showToast("원활한 플랜 작성을 위해 모든 분류(항공/교통, 호텔, 맛집, 대중교통)를 최소 1개 이상 골라주세요!");
         return;
       }
 
@@ -1689,7 +1677,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: {
           responseMimeType: "application/json",
-          maxOutputTokens: 8192, // CRITICAL FIX TO PREVENT UNEXPECTED END OF INPUT
+          maxOutputTokens: 8192,
           responseSchema: {
             type: "OBJECT",
             properties: {
@@ -1825,60 +1813,84 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "JSON_PARSE_ERROR") {
-          showToast("데이터가 너무 많아 응답이 중간에 끊겼습니다. 일정을 조금 줄여서 다시 시도해 주세요.");
+          showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 시도해 주세요.");
         } else {
           showToast("일정 생성에 실패했습니다. 다시 시도해주세요.");
         }
       }
     };
 
-    // 🚨 SAFE PARSER FIX: Safe parsing for truncated responses
-    async function callGeminiAPI(payload, customKey, retries = 5, delay = 1000) {
+    // 🚨 SAFE MULTI-MODEL FALLBACK PARSER: Tries preview model, then 1.5-flash to prevent 404s on Vercel
+    async function callGeminiAPI(payload, customKey, retries = 3) {
       const apiKey = customKey || "";
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-      
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+      const modelsToTry = [
+        "gemini-2.5-flash-preview-09-2025",
+        "gemini-2.5-flash",
+        "gemini-1.5-flash"
+      ];
 
-        if (!response.ok) {
-          if (response.status === 400 || response.status === 403) {
-             throw new Error("API_KEY_ERROR");
-          }
-          throw new Error(`HTTP Error Status: ${response.status}`);
-        }
+      let lastError;
 
-        const resJson = await response.json();
-        let responseText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+      for (const model of modelsToTry) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         
-        if (!responseText) {
-          throw new Error("No candidates received from Gemini API response.");
-        }
-
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            responseText = jsonMatch[0];
-        } else {
-            responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-        }
-
         try {
-            return JSON.parse(responseText);
-        } catch (parseError) {
-            console.error("JSON Parsing failed due to truncation or format issue. Raw text was:", responseText);
-            throw new Error("JSON_PARSE_ERROR");
-        }
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
 
-      } catch (error) {
-        if (error.message !== "API_KEY_ERROR" && error.message !== "JSON_PARSE_ERROR" && retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return callGeminiAPI(payload, customKey, retries - 1, delay * 2);
+          if (!response.ok) {
+            const errText = await response.text();
+            console.error(`[${model}] API Error:`, response.status, errText);
+            
+            if (response.status === 400 && errText.includes("API_KEY_INVALID")) {
+               throw new Error("API_KEY_ERROR");
+            }
+            if (response.status === 404) {
+               lastError = new Error("MODEL_NOT_FOUND");
+               continue; // Fallback to next model in array
+            }
+            if (response.status === 403) {
+               throw new Error("API_KEY_ERROR");
+            }
+            throw new Error(`HTTP Error: ${response.status}`);
+          }
+
+          const resJson = await response.json();
+          let responseText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+          
+          if (!responseText) {
+            throw new Error("No candidates received from Gemini API response.");
+          }
+
+          const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+              responseText = jsonMatch[0];
+          } else {
+              responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+          }
+
+          try {
+              return JSON.parse(responseText);
+          } catch (parseError) {
+              console.error("JSON Parsing failed due to truncation. Raw text:", responseText);
+              throw new SyntaxError("JSON_PARSE_ERROR");
+          }
+
+        } catch (error) {
+           if (error.message === "API_KEY_ERROR") throw error;
+           lastError = error;
+           if (error instanceof SyntaxError) {
+               lastError = new Error("JSON_PARSE_ERROR");
+               break; // Don't try other models for a parse error, just break.
+           }
         }
-        throw error;
       }
+      
+      // If we fall through the loop, throw the last error encountered.
+      throw lastError;
     }
 
     window.tuneItineraryDayWithAI = async function() {
