@@ -58,7 +58,7 @@
         <!-- Help/Guide Button -->
         <button onclick="toggleHelpModal(true)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs py-2 px-3.5 rounded-xl transition duration-200 flex items-center space-x-1.5">
           <i class="fa-solid fa-circle-question text-sm"></i>
-          <span class="hidden sm:inline">공유 및 배포 가이드</span>
+          <span class="hidden sm:inline">공유 및 이용 가이드</span>
         </button>
         
         <!-- Shared / Load State Button -->
@@ -91,16 +91,25 @@
         <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-xl mb-3 shadow-inner">
           <i class="fa-solid fa-circle-info"></i>
         </div>
-        <h3 class="text-lg font-extrabold text-slate-900">가치갈래 실시간 협업 & 외부 배포 가이드</h3>
-        <p class="text-xs text-slate-500 mt-1 text-emerald-600 font-semibold">※ 외부 배포 후 정상 작동 확인!</p>
+        <h3 class="text-lg font-extrabold text-slate-900">가치갈래 이용 & 외부 배포 가이드</h3>
+        <p class="text-xs text-slate-500 mt-1 font-semibold">외부 접속 시 API 키 발급 및 동기화 방법</p>
       </div>
 
-      <div class="space-y-4 text-xs leading-relaxed text-slate-600">
+      <div class="space-y-4 text-xs leading-relaxed text-slate-600 mt-4">
         <div class="flex items-start space-x-3 bg-indigo-50 p-3 rounded-xl border border-indigo-100">
-          <i class="fa-solid fa-check-circle text-indigo-500 mt-1"></i>
+          <i class="fa-solid fa-key text-indigo-500 mt-1"></i>
           <div>
-            <h4 class="font-bold text-indigo-900">API 키 연동 성공</h4>
-            <p class="mt-0.5 text-indigo-800">우측 상단 [Gemini API Key] 칸에 입력하신 개인 키가 Vercel 배포 환경에서 성공적으로 인식되어 작동 중입니다.</p>
+            <h4 class="font-bold text-indigo-900">API 키 발급 및 적용 필수</h4>
+            <p class="mt-0.5 text-indigo-800">외부(Vercel 등)에서 이용하시려면 구글에서 직접 발급받은 API 키가 필요합니다. 발급받은 키를 우측 상단 입력창에 넣어야 작동합니다.</p>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="inline-block mt-2 font-bold text-blue-600 hover:underline">👉 Google AI Studio에서 무료 API 키 발급받기</a>
+          </div>
+        </div>
+
+        <div class="flex items-start space-x-3 bg-red-50 p-3 rounded-xl border border-red-100">
+          <i class="fa-solid fa-triangle-exclamation text-red-500 mt-1"></i>
+          <div>
+            <h4 class="font-bold text-red-900">404 에러가 계속 발생하나요?</h4>
+            <p class="mt-0.5 text-red-800">API 키를 넣었는데도 <strong>HTTP Error 404</strong>가 뜬다면, 해당 키의 계정이 API 사용이 제한된 지역(유럽 등)이거나 모델 권한이 없기 때문입니다. 다른 구글 계정으로 키를 재발급받아 보세요.</p>
           </div>
         </div>
 
@@ -108,12 +117,12 @@
           <span class="bg-indigo-600 text-white font-black w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">1</span>
           <div>
             <h4 class="font-bold text-slate-900">초대 정보 복사 및 동기화</h4>
-            <p class="mt-0.5">대시보드 하단의 <strong class="text-indigo-600">초대 링크 복사</strong>를 누르면 <strong>초대 링크</strong>와 <strong>초대 코드(Trip ID)</strong>가 함께 복사됩니다. 일행이 초대 코드를 첫 화면에 입력하면 실시간 동기화가 시작됩니다.</p>
+            <p class="mt-0.5">대시보드 하단의 <strong class="text-indigo-600">초대 링크 복사</strong>를 누르면 <strong>초대 코드(Trip ID)</strong>가 함께 복사됩니다. 일행이 초대 코드를 첫 화면 하단에 입력하면 실시간 동기화가 시작됩니다.</p>
           </div>
         </div>
       </div>
 
-      <button onclick="toggleHelpModal(false)" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 rounded-xl transition shadow">확인했습니다</button>
+      <button onclick="toggleHelpModal(false)" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 rounded-xl transition shadow mt-4">확인했습니다</button>
     </div>
   </div>
 
@@ -129,7 +138,8 @@
         <div>
           <h3 class="text-sm font-semibold text-amber-900">외부 배포 시 서비스 이용을 위한 필수 안내</h3>
           <p class="text-[11px] text-amber-700 mt-0.5 leading-relaxed">
-            Vercel이나 GitHub 등에 본 파일을 배포하신 후에는 반드시 아래에 <strong>직접 발급받은 Gemini API Key</strong>를 입력해야 AI가 작동합니다. <br/>(입력하지 않고 검색 시 <strong>"API 키가 필요합니다"</strong> 오류가 발생합니다.)
+            반드시 아래에 <strong>직접 발급받은 Gemini API Key</strong>를 입력해야 AI가 작동합니다.<br/>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="font-bold text-indigo-600 hover:underline">👉 Google AI Studio에서 무료 API 키 발급받기</a>
           </p>
         </div>
       </div>
@@ -1435,7 +1445,7 @@ Special request: ${customNotes || 'None'}`;
         } else if (err.message === "ALL_MODELS_404") {
           showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
-          showToast("AI 데이터 분석 중 일시적인 구조 오류가 발생했습니다. 조금만 뒤에 다시 시도해 주세요.");
+          showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 시도해 주세요.");
         } else {
           showToast("오류 발생: " + err.message);
         }
@@ -1821,17 +1831,16 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
-    // 🚨 STRICT JSON EXTRACTOR & SMART FALLBACK: Handles Vercel 404s and strips out AI conversational text safely
+    // 🚨 SMART FALLBACK & SAFE PARSER: Handles Vercel 404s and strips out AI conversational text safely
     async function callGeminiAPI(payload, customKey, retries = 3, delay = 1500) {
       const apiKey = customKey || "";
       // 내부망이면 preview 모델, 외부망(API키 있음)이면 최신 모델 순차 시도
       const models = apiKey === "" 
           ? ["gemini-2.5-flash-preview-09-2025"] 
           : [
-              "gemini-2.5-flash",
               "gemini-1.5-flash",
-              "gemini-1.5-pro",
-              "gemini-pro"
+              "gemini-1.5-flash-8b",
+              "gemini-1.0-pro"
             ];
 
       let lastError;
@@ -2009,7 +2018,7 @@ User Modification Request: "${instruction}"`;
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
+          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else {
           showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
         }
@@ -2082,7 +2091,7 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
+          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else {
           showToast("예산 분석 도중 오류가 발생했습니다.");
         }
