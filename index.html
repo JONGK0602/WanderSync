@@ -331,7 +331,7 @@
             <!-- Fixed Plans -->
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1 flex justify-between items-center">
-                <span>꼭 포함하고 싶은 고정 일정</span>
+                <span>꼭 포함하고 고정 일정</span>
                 <button type="button" onclick="addFixedPlanRow()" class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-lg hover:bg-indigo-100"><i class="fa-solid fa-plus mr-1"></i>일정 추가</button>
               </label>
               <div id="fixedPlansContainer" class="space-y-2 mt-1">
@@ -1252,7 +1252,6 @@
       renderCandidateOptions();
     };
 
-    // 🚨 FIXED: Safe 3-item limit to strictly prevent "Unexpected end of input" on Gemini Flash Preview
     async function triggerIntermediateOptionsSearch() {
       if (!validateStep()) return;
 
@@ -1432,6 +1431,8 @@ Special request: ${customNotes || 'None'}`;
         document.getElementById('wizardSection').classList.remove('hidden');
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else if (err.message === "ALL_MODELS_404") {
+          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
           showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 검색해 주세요.");
         } else {
@@ -1644,10 +1645,9 @@ Special request: ${customNotes || 'None'}`;
       loader.classList.remove('hidden');
       document.getElementById('loaderStatusMsg').innerText = "최종 선택한 교통 수단, 호텔, 일정을 일정표에 정밀 합성 중...";
 
-      // ✨ OPTIMIZED PROMPT: Forces strictly small arrays to never trigger "Unexpected end of input"
       const systemPrompt = `You are an elite, thorough custom travel designer.
 You must construct a complete day-by-day itinerary in Korean for the user, integrating their chosen items EXACTLY as specified below.
-CRITICAL DETAIL REQUIREMENT: For EVERY activity, provide detailed guides (platform numbers, ticket links). For food, write the menu name in local language AND Korean and insert an image marker like "" next to it.
+CRITICAL DETAIL REQUIREMENT: For EVERY activity, provide detailed guides (platform numbers, ticket links). For food, write the menu name in local language AND Korean and insert an image marker like "" right next to it.
 CRITICAL LENGTH LIMIT (PREVENT JSON TRUNCATION): 
 1. Maximum 3 activities per day. 
 2. Descriptions MUST be under 15 words.
@@ -1810,6 +1810,8 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         document.getElementById('recommendationSection').classList.remove('hidden');
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else if (err.message === "ALL_MODELS_404") {
+          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
           showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 시도해 주세요.");
         } else {
@@ -1818,72 +1820,98 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
-    // 🚨 FIXED: SINGLE MODEL USAGE (Prevent 404s) + AUTO-REPAIR JSON FOR TRUNCATION
+    // 🚨 SMART FALLBACK & SAFE PARSER: Fixes Vercel 404 errors by auto-switching to public 1.5-flash model
     async function callGeminiAPI(payload, customKey, retries = 3, delay = 1500) {
       const apiKey = customKey || "";
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-      
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+      const models = [
+        "gemini-2.5-flash-preview-09-2025", // 내부 샌드박스용
+        "gemini-1.5-flash",                 // 퍼블릭 Vercel 배포 우회용
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-exp"
+      ];
 
-        if (!response.ok) {
-          const errText = await response.text();
-          if (response.status === 400 && errText.includes("API_KEY_INVALID")) {
-             throw new Error("API_KEY_ERROR");
-          }
-          if (response.status === 403) {
-             throw new Error("API_KEY_ERROR");
-          }
-          throw new Error(`HTTP Error Status: ${response.status}`);
-        }
+      let lastError;
 
-        const resJson = await response.json();
-        let responseText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
-        
-        if (!responseText) {
-          throw new Error("No candidates received from Gemini API response.");
-        }
+      for (let attempt = 0; attempt < retries; attempt++) {
+        for (const model of models) {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          
+          try {
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
 
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            responseText = jsonMatch[0];
-        } else {
-            responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-        }
+            if (!response.ok) {
+              const errText = await response.text();
+              if (response.status === 400 && errText.includes("API_KEY_INVALID")) {
+                 throw new Error("API_KEY_ERROR");
+              }
+              if (response.status === 403) {
+                 throw new Error("API_KEY_ERROR");
+              }
+              if (response.status === 404) {
+                 throw new Error("MODEL_NOT_FOUND");
+              }
+              throw new Error(`HTTP Error Status: ${response.status}`);
+            }
 
-        try {
-            return JSON.parse(responseText);
-        } catch (parseError) {
-            // ✨ AUTO JSON REPAIR: If output truncated, strip broken trailing comma/key and close brackets
-            console.warn("Attempting to auto-repair truncated JSON...");
-            let repaired = responseText.replace(/,\s*"[^"]*":?\s*$/, '').replace(/,\s*$/, '');
-            let openBraces = (repaired.match(/\{/g) || []).length;
-            let closeBraces = (repaired.match(/\}/g) || []).length;
-            let openBrackets = (repaired.match(/\[/g) || []).length;
-            let closeBrackets = (repaired.match(/\]/g) || []).length;
+            const resJson = await response.json();
+            let responseText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+            
+            if (!responseText) {
+              throw new Error("No candidates received from Gemini API response.");
+            }
 
-            while (openBrackets > closeBrackets) { repaired += ']'; closeBrackets++; }
-            while (openBraces > closeBraces) { repaired += '}'; closeBraces++; }
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                responseText = jsonMatch[0];
+            } else {
+                responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+            }
 
             try {
-                return JSON.parse(repaired);
-            } catch (secondError) {
-                console.error("Auto-repair failed. Raw text:", responseText);
-                throw new Error("JSON_PARSE_ERROR");
+                return JSON.parse(responseText);
+            } catch (parseError) {
+                console.warn("Attempting to auto-repair truncated JSON...");
+                let repaired = responseText.replace(/,\s*"[^"]*":?\s*$/, '').replace(/,\s*$/, '');
+                let openBraces = (repaired.match(/\{/g) || []).length;
+                let closeBraces = (repaired.match(/\}/g) || []).length;
+                let openBrackets = (repaired.match(/\[/g) || []).length;
+                let closeBrackets = (repaired.match(/\]/g) || []).length;
+
+                while (openBrackets > closeBrackets) { repaired += ']'; closeBrackets++; }
+                while (openBraces > closeBraces) { repaired += '}'; closeBraces++; }
+
+                try {
+                    return JSON.parse(repaired);
+                } catch (secondError) {
+                    console.error("Auto-repair failed. Raw text:", responseText);
+                    throw new Error("JSON_PARSE_ERROR");
+                }
             }
+
+          } catch (error) {
+            if (error.message === "API_KEY_ERROR" || error.message === "JSON_PARSE_ERROR") {
+               throw error; 
+            }
+            lastError = error;
+            if (error.message === "MODEL_NOT_FOUND") {
+                continue; // 404 에러 시 즉각 퍼블릭 모델로 Fallback(우회)
+            }
+            break; 
+          }
+        }
+        
+        if (lastError && lastError.message === "MODEL_NOT_FOUND") {
+             throw new Error("ALL_MODELS_404");
         }
 
-      } catch (error) {
-        if (error.message !== "API_KEY_ERROR" && error.message !== "JSON_PARSE_ERROR" && retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return callGeminiAPI(payload, customKey, retries - 1, delay * 1.5);
-        }
-        throw error;
+        await new Promise(resolve => setTimeout(resolve, delay * (attempt + 1)));
       }
+      
+      throw lastError;
     }
 
     window.tuneItineraryDayWithAI = async function() {
@@ -1974,6 +2002,8 @@ User Modification Request: "${instruction}"`;
         loader.classList.add('hidden');
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else if (err.message === "ALL_MODELS_404") {
+          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else {
           showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
         }
@@ -2043,7 +2073,13 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         showToast("AI 예산 최적화 분석 리포트가 완성되었습니다!");
       } catch (err) {
         console.error("AI Budget Optimization failed:", err);
-        showToast("예산 분석 도중 오류가 발생했습니다.");
+        if (err.message === "API_KEY_ERROR") {
+          showToast("🚨 Vercel/외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
+        } else if (err.message === "ALL_MODELS_404") {
+          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
+        } else {
+          showToast("예산 분석 도중 오류가 발생했습니다.");
+        }
       } finally {
         btn.disabled = false;
         loader.classList.add('hidden');
