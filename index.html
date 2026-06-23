@@ -58,7 +58,7 @@
         <!-- Help/Guide Button -->
         <button onclick="toggleHelpModal(true)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs py-2 px-3.5 rounded-xl transition duration-200 flex items-center space-x-1.5">
           <i class="fa-solid fa-circle-question text-sm"></i>
-          <span class="hidden sm:inline">초보자 이용 가이드</span>
+          <span class="hidden sm:inline">공유 및 배포 가이드</span>
         </button>
         
         <!-- Shared / Load State Button -->
@@ -116,7 +116,7 @@
           <span class="bg-indigo-600 text-white font-black w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">3</span>
           <div>
             <h4 class="font-bold text-slate-900">3단계: 초대 코드로 일행과 동기화</h4>
-            <p class="mt-0.5">일정표가 완성되면 하단의 <strong class="text-indigo-600">초대 링크 복사</strong>를 눌러 친구에게 카톡으로 보내세요. 친구가 이 사이트의 첫 화면 <strong>'기존 일정 불러오기'</strong> 칸에 초대 코드를 넣으면 실시간으로 화면이 연동됩니다!</p>
+            <p class="mt-0.5">일정표가 완성되면 하단의 <strong class="text-indigo-600">초대 링크 복사</strong>를 눌러 친구에게 카톡으로 보내세요. 친구가 이 사이트의 첫 화면 <strong>'기존 일행의 여행 일정 불러오기'</strong> 칸에 초대 코드를 넣으면 실시간으로 연동됩니다!</p>
           </div>
         </div>
       </div>
@@ -1311,7 +1311,7 @@
 CRITICAL: To avoid JSON truncation errors, you MUST generate exactly 3 items per category. Keep all descriptions VERY CONCISE (maximum 20 words per description).
 CRITICAL FOR DOMESTIC TRAVEL: Ensure the transportation routes start strictly from the user's provided Departure Point. If Departure Point is a specific station (e.g. "서울역"), suggest KTX/SRT/Bus from that exact point.
 CRITICAL: ALL text MUST be in Korean. 
-For food/restaurants, specify 1-2 menu items. Write the menu name in local language AND Korean. Insert an image marker like "" next to the menu.
+For food/restaurants, specify 1-2 menu items. Write the menu name in local language AND Korean. Insert an image marker like "[Image of <Korean Item>]" next to the menu.
 Your response MUST strictly conform to the provided JSON schema. No markdown wrappers.`;
 
       const promptText = `Please generate options for a trip to:
@@ -1451,11 +1451,9 @@ Special request: ${customNotes || 'None'}`;
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: API 키에 권한이 없거나 지원되지 않는 지역입니다. 다른 구글 계정으로 새 키를 발급받아 보세요.");
-        } else if (err.message === "RATE_LIMIT_EXCEEDED") {
-          showToast("🚨 429 에러: 무료 API 요청 한도(분당 15회 등)를 초과했습니다. 약 1분 뒤에 다시 시도해 주세요.");
+          showToast("🚨 404 에러: API 키에 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
         } else if (err.message === "SERVER_OVERLOAD") {
-          showToast("🚨 구글 AI 서버 혼잡: 전 세계 접속량이 많아 지연 중입니다. 잠시 뒤 다시 시도해주세요.");
+          showToast("🚨 구글 AI 서버 혼잡: 전 세계 접속량이 많아 지연 중입니다. 1~2분 뒤 다시 시도해주세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
           showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 시도해 주세요.");
         } else {
@@ -1670,12 +1668,11 @@ Special request: ${customNotes || 'None'}`;
 
       const systemPrompt = `You are an elite, thorough custom travel designer.
 You must construct a complete day-by-day itinerary in Korean for the user, integrating their chosen items EXACTLY as specified below.
-CRITICAL DETAIL REQUIREMENT: For EVERY activity, provide detailed guides (platform numbers, ticket links). For food, write the menu name in local language AND Korean and insert an image marker like "" right next to it.
-CRITICAL LENGTH LIMIT (PREVENT JSON TRUNCATION): 
-1. Maximum 3 activities per day. 
-2. Descriptions MUST be under 15 words.
-3. Checklist MUST have exactly 5 items.
-4. Budget MUST have exactly 3 items.
+CRITICAL DETAIL REQUIREMENT: For EVERY activity, provide highly detailed guides. For food, provide local menus and translations, and insert an image marker like "[Image of <Menu Name>]". 
+For transit, provide platform numbers, ticketing links, and boarding guides.
+To avoid JSON truncation, limit daily activities to 4 MAX, but make the descriptions for each activity comprehensive yet concise.
+Generate EXACTLY 10 highly specific checklist items tailored to the user's companions and destination.
+Generate EXACTLY 5 budget items.
 Output MUST strictly match the specified JSON schema format. Do NOT wrap in any extra markdown text.`;
 
       const promptText = `Assemble a complete, finalized schedule using these custom specifications:
@@ -1720,12 +1717,13 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
                           time: { type: "STRING" },
                           title: { type: "STRING" },
                           description: { type: "STRING" },
+                          detailedGuide: { type: "STRING", description: "In-depth guide, tips, exact location instructions, or translated flashcards for locals" },
                           googleMapsQuery: { type: "STRING" },
                           cost: { type: "INTEGER" },
                           category: { type: "STRING" },
                           imageUrl: { type: "STRING" }
                         },
-                        required: ["time", "title", "description", "googleMapsQuery", "cost", "category", "imageUrl"]
+                        required: ["time", "title", "description", "detailedGuide", "googleMapsQuery", "cost", "category", "imageUrl"]
                       }
                     }
                   },
@@ -1765,10 +1763,9 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       };
 
       let userKey = document.getElementById('inputApiKey').value.trim();
-      const apiKeyToUse = userKey || "";
 
       try {
-        const finalTripPlan = await callGeminiAPI(payload, apiKeyToUse);
+        const finalTripPlan = await callGeminiAPI(payload, userKey);
         
         const startD = new Date(state.tripInput.startDate);
         const endD = new Date(state.tripInput.endDate);
@@ -1823,16 +1820,13 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
 
         state.activePlan = finalTripPlan;
         
-        // 🚨 VITAL FIX: Immediately render dashboard to prevent empty fallback state if Cloud Save delays
+        // 🚨 VITAL FIX: Immediate Local Render to prevent blank screen or dummy data showing up
         renderActivePlanDashboard();
         loader.classList.add('hidden');
         showToast("✨ 나만의 100% 선택 맞춤형 커스텀 일정이 생성되었습니다!");
 
-        try {
-          await saveTripToCloud();
-        } catch(e) {
-          console.warn("Cloud save delayed/failed, but local data rendered.", e);
-        }
+        // Background save
+        saveTripToCloud().catch(e => console.warn("Background sync delay, but local UI is fully loaded.", e));
 
       } catch (err) {
         console.error("Final generation failure:", err);
@@ -1844,9 +1838,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         } else if (err.message === "ALL_MODELS_404") {
           showToast("🚨 404 에러: API 키에 권한이 없거나 지원되지 않는 지역입니다. 다른 구글 계정으로 새 키를 발급받아 보세요.");
         } else if (err.message === "RATE_LIMIT_EXCEEDED") {
-          showToast("🚨 429 에러: 무료 API 요청 한도(분당 15회 등)를 초과했습니다. 약 1분 뒤에 다시 시도해 주세요.");
-        } else if (err.message === "SERVER_OVERLOAD") {
-          showToast("🚨 구글 AI 서버 혼잡: 전 세계 접속량이 많아 지연 중입니다. 1~2분 뒤 다시 시도해주세요.");
+          showToast("🚨 구글 서버 트래픽 한도 초과: 잠시 후 다시 시도해 주세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
           showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 시도해 주세요.");
         } else {
@@ -1855,14 +1847,20 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
-    // 🚨 SMART MULTI-MODEL FALLBACK & SAFE PARSER: Auto detects Vercel vs Sandbox and tries to repair JSON
-    async function callGeminiAPI(payload, customKey, retries = 3, delay = 1500) {
+    // 🚨 SMART MULTI-MODEL FALLBACK & SAFE PARSER
+    async function callGeminiAPI(payload, customKey, retries = 3, delay = 1000) {
       const apiKey = customKey || "";
-      const isExternal = typeof __firebase_config === 'undefined';
       
-      const models = isExternal 
-        ? ["gemini-1.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-pro"]
-        : ["gemini-2.5-flash-preview-09-2025", "gemini-1.5-flash"];
+      const models = apiKey === "" 
+          ? ["gemini-2.5-flash-preview-09-2025"] 
+          : [
+              "gemini-2.5-flash",
+              "gemini-2.0-flash",
+              "gemini-1.5-flash-latest",
+              "gemini-1.5-flash",
+              "gemini-1.5-pro",
+              "gemini-pro"
+            ];
 
       let lastError;
 
@@ -1870,20 +1868,29 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         for (const model of models) {
           const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
           
+          let currentPayload = JSON.parse(JSON.stringify(payload));
+          if (model === "gemini-pro" || model === "gemini-1.0-pro") {
+             if (currentPayload.systemInstruction) {
+                 const sysText = currentPayload.systemInstruction.parts[0].text;
+                 currentPayload.contents[0].parts.unshift({text: "SYSTEM INSTRUCTION (FOLLOW STRICTLY): " + sysText + "\n\n"});
+                 delete currentPayload.systemInstruction;
+             }
+             if (currentPayload.generationConfig && currentPayload.generationConfig.responseSchema) {
+                 delete currentPayload.generationConfig.responseSchema;
+             }
+          }
+
           try {
             const response = await fetch(url, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
+              body: JSON.stringify(currentPayload)
             });
 
             if (!response.ok) {
               const errText = await response.text();
               console.error(`[${model}] API Error:`, response.status, errText);
               
-              if (response.status === 429) {
-                 throw new Error("RATE_LIMIT_EXCEEDED");
-              }
               if (response.status === 400 && errText.includes("API_KEY_INVALID")) {
                  throw new Error("API_KEY_ERROR");
               }
@@ -1892,6 +1899,9 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
               }
               if (response.status === 404) {
                  throw new Error("MODEL_NOT_FOUND");
+              }
+              if (response.status === 429 || response.status === 503) {
+                 throw new Error("RATE_LIMIT_EXCEEDED");
               }
               throw new Error(`HTTP Error Status: ${response.status}`);
             }
@@ -1932,7 +1942,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
             }
 
           } catch (error) {
-            if (error.message === "API_KEY_ERROR" || error.message === "JSON_PARSE_ERROR" || error.message === "RATE_LIMIT_EXCEEDED") {
+            if (error.message === "API_KEY_ERROR" || error.message === "JSON_PARSE_ERROR") {
                throw error; 
             }
             lastError = error;
@@ -1952,6 +1962,79 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       
       throw lastError;
     }
+
+    // Toggle detailed guide visibility
+    window.toggleDetailedGuide = function(guideId) {
+      const el = document.getElementById(guideId);
+      const icon = document.getElementById('icon-' + guideId);
+      if (el.classList.contains('hidden')) {
+          el.classList.remove('hidden');
+          icon.classList.add('rotate-180');
+      } else {
+          el.classList.add('hidden');
+          icon.classList.remove('rotate-180');
+      }
+    };
+
+    // AI Hotspot Adder Logic
+    window.addAIHotspot = async function(dayNum, btnElement) {
+        if (!state.activePlan) return;
+        
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>AI 탐색 중...</span>`;
+        btnElement.disabled = true;
+
+        const dayData = state.activePlan.itinerary.find(d => d.day === dayNum);
+        if(!dayData) return;
+
+        const systemPrompt = `You are a travel assistant. Suggest EXACTLY 1 new, highly recommended hotspot/cafe/attraction to add to this day's itinerary.
+It must fit well with the user's destination (${state.tripInput.destination}).
+Return ONLY a valid JSON object matching the activity schema.`;
+
+        const promptText = `Suggest 1 extra activity for DAY ${dayNum}. Current activities: ${JSON.stringify(dayData.activities.map(a=>a.title))}`;
+
+        const payload = {
+            contents: [{ parts: [{ text: promptText }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: "OBJECT",
+                    properties: {
+                        time: { type: "STRING" },
+                        title: { type: "STRING" },
+                        description: { type: "STRING" },
+                        detailedGuide: { type: "STRING" },
+                        googleMapsQuery: { type: "STRING" },
+                        cost: { type: "INTEGER" },
+                        category: { type: "STRING" },
+                        imageUrl: { type: "STRING" }
+                    },
+                    required: ["time", "title", "description", "detailedGuide", "googleMapsQuery", "cost", "category", "imageUrl"]
+                }
+            }
+        };
+
+        let userKey = document.getElementById('inputApiKey').value.trim();
+
+        try {
+            const newActivity = await callGeminiAPI(payload, userKey);
+            
+            // Insert it and sort
+            dayData.activities.push(newActivity);
+            dayData.activities.sort((a, b) => (a.time || "23:59").localeCompare(b.time || "23:59"));
+            
+            renderItineraryTimeline(state.activePlan.itinerary);
+            saveTripToCloud();
+            showToast(`DAY ${dayNum}에 새로운 AI 추천 명소가 추가되었습니다!`);
+
+        } catch (e) {
+            console.error("Hotspot add error", e);
+            showToast("명소를 추가하는 데 실패했습니다. 다시 시도해 주세요.");
+            btnElement.innerHTML = originalText;
+            btnElement.disabled = false;
+        }
+    };
 
     window.tuneItineraryDayWithAI = async function() {
       if (!state.activePlan) return;
@@ -2005,12 +2088,13 @@ User Modification Request: "${instruction}"`;
                     time: { type: "STRING" },
                     title: { type: "STRING" },
                     description: { type: "STRING" },
+                    detailedGuide: { type: "STRING" },
                     googleMapsQuery: { type: "STRING" },
                     cost: { type: "INTEGER" },
                     category: { type: "STRING" },
                     imageUrl: { type: "STRING" }
                   },
-                  required: ["time", "title", "description", "googleMapsQuery", "cost", "category", "imageUrl"]
+                  required: ["time", "title", "description", "detailedGuide", "googleMapsQuery", "cost", "category", "imageUrl"]
                 }
               }
             },
@@ -2020,13 +2104,12 @@ User Modification Request: "${instruction}"`;
       };
 
       let userKey = document.getElementById('inputApiKey').value.trim();
-      const apiKeyToUse = userKey || "";
 
       try {
-        const revisedDayData = await callGeminiAPI(payload, apiKeyToUse);
+        const revisedDayData = await callGeminiAPI(payload, userKey);
         
-        state.activePlan.itinerary[targetDayIndex].daySummary = revisedDayData.daySummary;
-        state.activePlan.itinerary[targetDayIndex].activities = revisedDayData.activities;
+        state.activePlan.itinerary[targetDayIndex].daySummary = revisedDayData.daySummary || "일정 변경됨";
+        state.activePlan.itinerary[targetDayIndex].activities = revisedDayData.activities || [];
 
         await saveTripToCloud();
         
@@ -2034,20 +2117,13 @@ User Modification Request: "${instruction}"`;
         loader.classList.add('hidden');
         showToast(`DAY ${selectedDay} 일정이 성공적으로 변경되었습니다!`);
 
+        renderActivePlanDashboard();
         scrollToTimelineDay(selectedDay);
 
       } catch (err) {
         console.error("AI Day Tuner failed:", err);
         loader.classList.add('hidden');
-        if (err.message === "API_KEY_ERROR") {
-          showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
-        } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
-        } else if (err.message === "RATE_LIMIT_EXCEEDED") {
-          showToast("🚨 429 에러: 무료 API 요청 한도(분당 15회 등)를 초과했습니다. 약 1분 뒤에 다시 시도해 주세요.");
-        } else {
-          showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
-        }
+        showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
       }
     };
 
@@ -2102,10 +2178,9 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
       };
 
       let userKey = document.getElementById('inputApiKey').value.trim();
-      const apiKeyToUse = userKey || "";
 
       try {
-        const analysis = await callGeminiAPI(payload, apiKeyToUse);
+        const analysis = await callGeminiAPI(payload, userKey);
         
         state.activePlan.aiBudgetAnalysis = analysis;
         await saveTripToCloud();
@@ -2114,15 +2189,7 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         showToast("AI 예산 최적화 분석 리포트가 완성되었습니다!");
       } catch (err) {
         console.error("AI Budget Optimization failed:", err);
-        if (err.message === "API_KEY_ERROR") {
-          showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
-        } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
-        } else if (err.message === "RATE_LIMIT_EXCEEDED") {
-          showToast("🚨 429 에러: 무료 API 요청 한도(분당 15회 등)를 초과했습니다. 약 1분 뒤에 다시 시도해 주세요.");
-        } else {
-          showToast("예산 분석 도중 오류가 발생했습니다.");
-        }
+        showToast("예산 분석 도중 오류가 발생했습니다.");
       } finally {
         btn.disabled = false;
         loader.classList.add('hidden');
@@ -2291,6 +2358,8 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         (dayData.activities || []).forEach((act) => {
           const actItem = document.createElement('div');
           actItem.className = "relative group";
+          
+          const guideId = crypto.randomUUID();
 
           let iconClass = "fa-solid fa-map-pin text-indigo-500 bg-indigo-50";
           const catString = (act.category || '').toLowerCase();
@@ -2304,6 +2373,7 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
 
           const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.googleMapsQuery || act.title || '')}`;
 
+          // ✨ NEW: Expandable Detailed Guide & Flashcards
           actItem.innerHTML = `
             <div class="absolute -left-[27px] top-1 w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-sm ${iconClass} border border-white z-10"></div>
             
@@ -2318,10 +2388,29 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
                   ${act.imageUrl ? `<div class="text-[10px] text-slate-400 bg-slate-200/40 px-2 py-1.5 rounded-lg inline-block font-mono mt-2">${act.imageUrl}</div>` : ''}
                 </div>
                 
-                <a href="${mapsUrl}" target="_blank" class="self-start sm:self-center bg-white border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center space-x-1.5 shadow-sm transition flex-shrink-0 mt-2 sm:mt-0">
-                  <i class="fa-solid fa-location-dot text-red-500"></i>
-                  <span>단일 장소 검색</span>
-                </a>
+                <div class="flex flex-col space-y-2 mt-2 sm:mt-0 flex-shrink-0 w-full sm:w-auto">
+                    <button onclick="toggleDetailedGuide('${guideId}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center space-x-1.5 shadow-sm transition w-full">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>자세히 보기 / 현지어 회화</span>
+                        <i id="icon-${guideId}" class="fa-solid fa-chevron-down transition text-[9px]"></i>
+                    </button>
+                    <a href="${mapsUrl}" target="_blank" class="bg-white border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center justify-center space-x-1.5 shadow-sm transition w-full">
+                    <i class="fa-solid fa-location-dot text-red-500"></i>
+                    <span>길찾기</span>
+                    </a>
+                </div>
+              </div>
+
+              <!-- COLLAPSIBLE DETAILED GUIDE BOX -->
+              <div id="${guideId}" class="hidden mt-3 p-3 bg-white border border-indigo-100 rounded-xl shadow-inner animate-fade-in text-xs text-slate-700 leading-relaxed">
+                 <div class="flex items-center space-x-2 text-indigo-700 font-bold mb-2">
+                     <i class="fa-solid fa-lightbulb"></i>
+                     <span>AI 초정밀 현지 이용 가이드</span>
+                 </div>
+                 <p class="whitespace-pre-wrap">${act.detailedGuide || '상세 가이드가 없습니다.'}</p>
+                 <div class="mt-2 text-[10px] text-slate-400 bg-slate-50 p-2 rounded border border-slate-100">
+                    💡 <strong>Tip:</strong> 현지에서 말이 안 통할 땐 위 일본어/현지어 문장(메뉴 등)을 종업원에게 스마트폰 화면으로 보여주세요!
+                 </div>
               </div>
               
               <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
@@ -2332,6 +2421,18 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
           `;
           timelineList.appendChild(actItem);
         });
+
+        // ✨ NEW: Add Hotspot/Attraction Button per Day
+        const addHotspotBtn = document.createElement('div');
+        addHotspotBtn.className = "relative group pt-4";
+        addHotspotBtn.innerHTML = `
+            <div class="absolute -left-[23px] top-5 w-4 h-4 rounded-full bg-slate-200 border-2 border-white z-10"></div>
+            <button onclick="addAIHotspot(${dayData.day}, this)" class="w-full border-2 border-dashed border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 rounded-xl py-3 text-xs font-bold text-slate-500 hover:text-indigo-600 transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-plus"></i>
+                <span>✨ 이 날 주변 핫스팟 / 맛집 일정 추가하기</span>
+            </button>
+        `;
+        timelineList.appendChild(addHotspotBtn);
 
         dayCard.appendChild(timelineList);
         container.appendChild(dayCard);
