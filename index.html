@@ -1451,11 +1451,13 @@ Special request: ${customNotes || 'None'}`;
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나, 구글 정책상 지원되지 않는 지역(국가)입니다.");
+          showToast("🚨 404 에러: API 키에 권한이 없거나 지원되지 않는 지역입니다. 다른 구글 계정으로 새 키를 발급받아 보세요.");
+        } else if (err.message === "RATE_LIMIT_EXCEEDED") {
+          showToast("🚨 429 에러: 무료 API 요청 한도(분당 15회 등)를 초과했습니다. 약 1분 뒤에 다시 시도해 주세요.");
         } else if (err.message === "SERVER_OVERLOAD") {
-          showToast("🚨 구글 AI 서버 혼잡: 전 세계 접속량이 많아 지연 중입니다. 1~2분 뒤 다시 시도해주세요.");
+          showToast("🚨 구글 AI 서버 혼잡: 전 세계 접속량이 많아 지연 중입니다. 잠시 뒤 다시 시도해주세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
-          showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 검색해 주세요.");
+          showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 시도해 주세요.");
         } else {
           showToast("오류 발생: " + err.message);
         }
@@ -1763,9 +1765,10 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       };
 
       let userKey = document.getElementById('inputApiKey').value.trim();
+      const apiKeyToUse = userKey || "";
 
       try {
-        const finalTripPlan = await callGeminiAPI(payload, userKey);
+        const finalTripPlan = await callGeminiAPI(payload, apiKeyToUse);
         
         const startD = new Date(state.tripInput.startDate);
         const endD = new Date(state.tripInput.endDate);
@@ -1840,6 +1843,8 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
           showToast("🚨 404 에러: API 키에 권한이 없거나 지원되지 않는 지역입니다. 다른 구글 계정으로 새 키를 발급받아 보세요.");
+        } else if (err.message === "RATE_LIMIT_EXCEEDED") {
+          showToast("🚨 429 에러: 무료 API 요청 한도(분당 15회 등)를 초과했습니다. 약 1분 뒤에 다시 시도해 주세요.");
         } else if (err.message === "SERVER_OVERLOAD") {
           showToast("🚨 구글 AI 서버 혼잡: 전 세계 접속량이 많아 지연 중입니다. 1~2분 뒤 다시 시도해주세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
@@ -1850,21 +1855,14 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
-    // 🚨 SMART MULTI-MODEL FALLBACK & SAFE PARSER
-    async function callGeminiAPI(payload, customKey, retries = 3, delay = 1000) {
+    // 🚨 SMART MULTI-MODEL FALLBACK & SAFE PARSER: Auto detects Vercel vs Sandbox and tries to repair JSON
+    async function callGeminiAPI(payload, customKey, retries = 3, delay = 1500) {
       const apiKey = customKey || "";
+      const isExternal = typeof __firebase_config === 'undefined';
       
-      // Expand models explicitly to bypass local restrictions and Google's recent model name purges
-      const models = apiKey === "" 
-          ? ["gemini-2.5-flash-preview-09-2025"] 
-          : [
-              "gemini-2.5-flash",
-              "gemini-2.0-flash",
-              "gemini-1.5-flash-latest",
-              "gemini-1.5-flash",
-              "gemini-1.5-pro",
-              "gemini-pro"
-            ];
+      const models = isExternal 
+        ? ["gemini-1.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-pro"]
+        : ["gemini-2.5-flash-preview-09-2025", "gemini-1.5-flash"];
 
       let lastError;
 
@@ -1872,29 +1870,20 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         for (const model of models) {
           const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
           
-          let currentPayload = JSON.parse(JSON.stringify(payload));
-          if (model === "gemini-pro" || model === "gemini-1.0-pro") {
-             if (currentPayload.systemInstruction) {
-                 const sysText = currentPayload.systemInstruction.parts[0].text;
-                 currentPayload.contents[0].parts.unshift({text: "SYSTEM INSTRUCTION (FOLLOW STRICTLY): " + sysText + "\n\n"});
-                 delete currentPayload.systemInstruction;
-             }
-             if (currentPayload.generationConfig && currentPayload.generationConfig.responseSchema) {
-                 delete currentPayload.generationConfig.responseSchema;
-             }
-          }
-
           try {
             const response = await fetch(url, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(currentPayload)
+              body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
               const errText = await response.text();
               console.error(`[${model}] API Error:`, response.status, errText);
               
+              if (response.status === 429) {
+                 throw new Error("RATE_LIMIT_EXCEEDED");
+              }
               if (response.status === 400 && errText.includes("API_KEY_INVALID")) {
                  throw new Error("API_KEY_ERROR");
               }
@@ -1914,7 +1903,6 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
               throw new Error("No candidates received from Gemini API response.");
             }
 
-            // STRICT JSON EXTRACTOR: Ignores conversational junk
             const jsonMatch = responseText.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
                 responseText = jsonMatch[0];
@@ -1944,14 +1932,14 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
             }
 
           } catch (error) {
-            if (error.message === "API_KEY_ERROR" || error.message === "JSON_PARSE_ERROR") {
+            if (error.message === "API_KEY_ERROR" || error.message === "JSON_PARSE_ERROR" || error.message === "RATE_LIMIT_EXCEEDED") {
                throw error; 
             }
             lastError = error;
             if (error.message === "MODEL_NOT_FOUND") {
-                continue; // Move to the next model in the list
+                continue; 
             }
-            break; // Break the model loop for other HTTP errors, retry entire attempt loop
+            break; 
           }
         }
         
@@ -2032,12 +2020,13 @@ User Modification Request: "${instruction}"`;
       };
 
       let userKey = document.getElementById('inputApiKey').value.trim();
+      const apiKeyToUse = userKey || "";
 
       try {
-        const revisedDayData = await callGeminiAPI(payload, userKey);
+        const revisedDayData = await callGeminiAPI(payload, apiKeyToUse);
         
-        state.activePlan.itinerary[targetDayIndex].daySummary = revisedDayData.daySummary || "일정 변경됨";
-        state.activePlan.itinerary[targetDayIndex].activities = revisedDayData.activities || [];
+        state.activePlan.itinerary[targetDayIndex].daySummary = revisedDayData.daySummary;
+        state.activePlan.itinerary[targetDayIndex].activities = revisedDayData.activities;
 
         await saveTripToCloud();
         
@@ -2054,6 +2043,8 @@ User Modification Request: "${instruction}"`;
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
           showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
+        } else if (err.message === "RATE_LIMIT_EXCEEDED") {
+          showToast("🚨 429 에러: 무료 API 요청 한도(분당 15회 등)를 초과했습니다. 약 1분 뒤에 다시 시도해 주세요.");
         } else {
           showToast("일정 튜닝에 실패했습니다. 다시 시도해 주세요.");
         }
@@ -2111,9 +2102,10 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
       };
 
       let userKey = document.getElementById('inputApiKey').value.trim();
+      const apiKeyToUse = userKey || "";
 
       try {
-        const analysis = await callGeminiAPI(payload, userKey);
+        const analysis = await callGeminiAPI(payload, apiKeyToUse);
         
         state.activePlan.aiBudgetAnalysis = analysis;
         await saveTripToCloud();
@@ -2126,6 +2118,8 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
           showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
+        } else if (err.message === "RATE_LIMIT_EXCEEDED") {
+          showToast("🚨 429 에러: 무료 API 요청 한도(분당 15회 등)를 초과했습니다. 약 1분 뒤에 다시 시도해 주세요.");
         } else {
           showToast("예산 분석 도중 오류가 발생했습니다.");
         }
