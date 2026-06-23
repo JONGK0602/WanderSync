@@ -92,7 +92,7 @@
           <i class="fa-solid fa-circle-info"></i>
         </div>
         <h3 class="text-lg font-extrabold text-slate-900">가치갈래 실시간 협업 & 외부 배포 가이드</h3>
-        <p class="text-xs text-slate-500 mt-1 text-emerald-600 font-semibold">※ 외부 배포 후 정상 작동 확인!</p>
+        <p class="text-xs text-slate-500 mt-1 text-emerald-600 font-semibold">※ 최신 API 모델 업데이트 완료!</p>
       </div>
 
       <div class="space-y-4 text-xs leading-relaxed text-slate-600 mt-4">
@@ -100,7 +100,7 @@
           <i class="fa-solid fa-check-circle text-indigo-500 mt-1"></i>
           <div>
             <h4 class="font-bold text-indigo-900">API 키 연동 지원 모델 추가</h4>
-            <p class="mt-0.5 text-indigo-800">우측 상단 [Gemini API Key] 칸에 입력하신 개인 키가 더 많은 범용 모델에 접근할 수 있도록 4단계 우회 시스템을 적용했습니다.</p>
+            <p class="mt-0.5 text-indigo-800">우측 상단 [Gemini API Key] 칸에 입력하신 개인 키가 더 많은 최신 2.5 범용 모델에 접근할 수 있도록 우회 시스템을 적용했습니다.</p>
           </div>
         </div>
 
@@ -1242,17 +1242,18 @@
       if (!state.recOptions || !state.recOptions.flights) return;
       
       if (criteria === 'price_asc') {
-        state.recOptions.flights.sort((a, b) => a.price - b.price);
+        state.recOptions.flights.sort((a, b) => (a.price || 0) - (b.price || 0));
       } else if (criteria === 'time_asc') {
         state.recOptions.flights.sort((a, b) => {
-          const timeA = a.timeSchedule.match(/\d{2}:\d{2}/)?.[0] || '23:59';
-          const timeB = b.timeSchedule.match(/\d{2}:\d{2}/)?.[0] || '23:59';
+          const timeA = (a.timeSchedule || '').match(/\d{2}:\d{2}/)?.[0] || '23:59';
+          const timeB = (b.timeSchedule || '').match(/\d{2}:\d{2}/)?.[0] || '23:59';
           return timeA.localeCompare(timeB);
         });
       }
       renderCandidateOptions();
     };
 
+    // 🚨 SAFE PARSER FIX: Reduced option count to 3 to strictly prevent "Unexpected end of input"
     async function triggerIntermediateOptionsSearch() {
       if (!validateStep()) return;
 
@@ -1433,7 +1434,7 @@ Special request: ${customNotes || 'None'}`;
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 우측 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. 다른 구글 계정으로 새 키를 발급받아 보세요.");
+          showToast("🚨 404 에러: API 키에 권한이 없습니다. 구글 AI Studio에서 새로운 키를 발급받으세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
           showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 시도해 주세요.");
         } else {
@@ -1812,7 +1813,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. 다른 구글 계정으로 새 키를 발급받아 보세요.");
+          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 구글 AI Studio에서 새 키를 발급받으세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
           showToast("일정표를 구성하는 도중 데이터가 손상되었습니다. 다시 한 번 [맞춤 일정표 생성] 버튼을 눌러주세요.");
         } else {
@@ -1821,18 +1822,17 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
-    // 🚨 SMART MULTI-MODEL FALLBACK & SAFE PARSER
+    // 🚨 UPDATED FALLBACK: Try active 2026 models like gemini-2.5-flash and generic gemini-pro
     async function callGeminiAPI(payload, customKey, retries = 3, delay = 1000) {
       const apiKey = customKey || "";
       
-      // Try models progressively from fastest/public to most stable
       const models = apiKey === "" 
           ? ["gemini-2.5-flash-preview-09-2025"] 
           : [
-              "gemini-1.5-flash",
-              "gemini-1.5-flash-latest",
-              "gemini-1.5-pro",
-              "gemini-1.0-pro" // Ultimate public fallback
+              "gemini-2.5-flash-preview-09-2025",
+              "gemini-2.5-flash",
+              "gemini-2.0-flash",
+              "gemini-pro"
             ];
 
       let lastError;
@@ -1841,19 +1841,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         for (const model of models) {
           const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
           
-          // 🚨 VITAL: gemini-1.0-pro DOES NOT support systemInstruction or responseSchema. 
-          // We MUST modify the payload dynamically before sending to 1.0 to prevent 400 Bad Request
           let currentPayload = JSON.parse(JSON.stringify(payload));
-          if (model === "gemini-1.0-pro") {
-             if (currentPayload.systemInstruction) {
-                 const sysText = currentPayload.systemInstruction.parts[0].text;
-                 currentPayload.contents[0].parts.unshift({text: "SYSTEM INSTRUCTION (FOLLOW STRICTLY): " + sysText + "\n\n"});
-                 delete currentPayload.systemInstruction;
-             }
-             if (currentPayload.generationConfig && currentPayload.generationConfig.responseSchema) {
-                 delete currentPayload.generationConfig.responseSchema;
-             }
-          }
 
           try {
             const response = await fetch(url, {
@@ -1885,7 +1873,6 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
               throw new Error("No candidates received from Gemini API response.");
             }
 
-            // STRICT JSON EXTRACTOR: Ignores conversational junk
             const jsonMatch = responseText.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
                 responseText = jsonMatch[0];
@@ -1920,9 +1907,9 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
             }
             lastError = error;
             if (error.message === "MODEL_NOT_FOUND") {
-                continue; // Move to the next model in the list
+                continue; 
             }
-            break; // Break the model loop for other HTTP errors, retry entire attempt loop
+            break; 
           }
         }
         
@@ -1960,7 +1947,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
 
       const systemPrompt = `You are an elite, highly-responsive travel expert planner.
 The user wants to update the itinerary for a SPECIFIC single day of their ongoing trip.
-You MUST rewrite only this specific day's activities and summary based on the user's modifications (e.g., changing weather, tiredness, new interests).
+You MUST rewrite only this specific day's activities and summary based on the user's modifications.
 Ensure the activities are logically timed, exciting, localized, and contain realistic googleMapsQuery terms.
 Output MUST strictly match the specified JSON schema format. Do NOT wrap in any extra markdown text outside the valid JSON.`;
 
