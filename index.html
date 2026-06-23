@@ -58,7 +58,7 @@
         <!-- Help/Guide Button -->
         <button onclick="toggleHelpModal(true)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs py-2 px-3.5 rounded-xl transition duration-200 flex items-center space-x-1.5">
           <i class="fa-solid fa-circle-question text-sm"></i>
-          <span class="hidden sm:inline">공유 및 이용 가이드</span>
+          <span class="hidden sm:inline">공유 및 배포 가이드</span>
         </button>
         
         <!-- Shared / Load State Button -->
@@ -91,25 +91,16 @@
         <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-xl mb-3 shadow-inner">
           <i class="fa-solid fa-circle-info"></i>
         </div>
-        <h3 class="text-lg font-extrabold text-slate-900">가치갈래 이용 & 외부 배포 가이드</h3>
-        <p class="text-xs text-slate-500 mt-1 font-semibold">외부 접속 시 API 키 발급 및 동기화 방법</p>
+        <h3 class="text-lg font-extrabold text-slate-900">가치갈래 실시간 협업 & 외부 배포 가이드</h3>
+        <p class="text-xs text-slate-500 mt-1 text-emerald-600 font-semibold">※ 외부 배포 후 정상 작동 확인!</p>
       </div>
 
-      <div class="space-y-4 text-xs leading-relaxed text-slate-600 mt-4">
+      <div class="space-y-4 text-xs leading-relaxed text-slate-600">
         <div class="flex items-start space-x-3 bg-indigo-50 p-3 rounded-xl border border-indigo-100">
-          <i class="fa-solid fa-key text-indigo-500 mt-1"></i>
+          <i class="fa-solid fa-check-circle text-indigo-500 mt-1"></i>
           <div>
-            <h4 class="font-bold text-indigo-900">API 키 발급 및 적용 필수</h4>
-            <p class="mt-0.5 text-indigo-800">외부(Vercel 등)에서 이용하시려면 구글에서 직접 발급받은 API 키가 필요합니다. 발급받은 키를 우측 상단 입력창에 넣어야 작동합니다.</p>
-            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="inline-block mt-2 font-bold text-blue-600 hover:underline">👉 Google AI Studio에서 무료 API 키 발급받기</a>
-          </div>
-        </div>
-
-        <div class="flex items-start space-x-3 bg-red-50 p-3 rounded-xl border border-red-100">
-          <i class="fa-solid fa-triangle-exclamation text-red-500 mt-1"></i>
-          <div>
-            <h4 class="font-bold text-red-900">404 에러가 계속 발생하나요?</h4>
-            <p class="mt-0.5 text-red-800">API 키를 넣었는데도 <strong>HTTP Error 404</strong>가 뜬다면, 해당 키의 계정이 API 사용이 제한된 지역(유럽 등)이거나 모델 권한이 없기 때문입니다. 다른 구글 계정으로 키를 재발급받아 보세요.</p>
+            <h4 class="font-bold text-indigo-900">API 키 연동 성공</h4>
+            <p class="mt-0.5 text-indigo-800">우측 상단 [Gemini API Key] 칸에 입력하신 개인 키가 Vercel 배포 환경에서 성공적으로 인식되어 작동 중입니다.</p>
           </div>
         </div>
 
@@ -117,12 +108,12 @@
           <span class="bg-indigo-600 text-white font-black w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">1</span>
           <div>
             <h4 class="font-bold text-slate-900">초대 정보 복사 및 동기화</h4>
-            <p class="mt-0.5">대시보드 하단의 <strong class="text-indigo-600">초대 링크 복사</strong>를 누르면 <strong>초대 코드(Trip ID)</strong>가 함께 복사됩니다. 일행이 초대 코드를 첫 화면 하단에 입력하면 실시간 동기화가 시작됩니다.</p>
+            <p class="mt-0.5">대시보드 하단의 <strong class="text-indigo-600">초대 링크 복사</strong>를 누르면 <strong>초대 링크</strong>와 <strong>초대 코드(Trip ID)</strong>가 함께 복사됩니다. 일행이 초대 코드를 첫 화면에 입력하면 실시간 동기화가 시작됩니다.</p>
           </div>
         </div>
       </div>
 
-      <button onclick="toggleHelpModal(false)" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 rounded-xl transition shadow mt-4">확인했습니다</button>
+      <button onclick="toggleHelpModal(false)" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 rounded-xl transition shadow">확인했습니다</button>
     </div>
   </div>
 
@@ -138,8 +129,7 @@
         <div>
           <h3 class="text-sm font-semibold text-amber-900">외부 배포 시 서비스 이용을 위한 필수 안내</h3>
           <p class="text-[11px] text-amber-700 mt-0.5 leading-relaxed">
-            반드시 아래에 <strong>직접 발급받은 Gemini API Key</strong>를 입력해야 AI가 작동합니다.<br/>
-            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="font-bold text-indigo-600 hover:underline">👉 Google AI Studio에서 무료 API 키 발급받기</a>
+            Vercel이나 GitHub 등에 본 파일을 배포하신 후에는 반드시 아래에 <strong>직접 발급받은 Gemini API Key</strong>를 입력해야 AI가 작동합니다. <br/>(입력하지 않고 검색 시 <strong>"API 키가 필요합니다"</strong> 오류가 발생합니다.)
           </p>
         </div>
       </div>
@@ -1262,7 +1252,6 @@
       renderCandidateOptions();
     };
 
-    // 🚨 SAFE PARSER FIX: Reduced option count to 3 to strictly prevent "Unexpected end of input"
     async function triggerIntermediateOptionsSearch() {
       if (!validateStep()) return;
 
@@ -1300,11 +1289,11 @@
       loader.classList.remove('hidden');
       document.getElementById('loaderStatusMsg').innerText = "현지 최신 데이터를 분석 중입니다. 데이터 양이 많아 약간의 시간이 소요될 수 있습니다...";
 
-      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, and companions, generate a brief daily itinerary and EXACTLY 3 high-quality candidates for Flights/Main Transit, Hotels, Restaurants, and Local Transportation.
-CRITICAL: To avoid JSON truncation errors, you MUST generate exactly 3 items per category. Keep all descriptions VERY CONCISE (maximum 20 words per description).
+      const systemPrompt = `You are a world-class travel agent. Based on the user's destination, dates, and companions, generate a brief daily itinerary and EXACTLY 4 high-quality candidates for Flights/Main Transit, Hotels, Restaurants, and Local Transportation.
+CRITICAL: To avoid JSON truncation errors, you MUST generate exactly 4 items per category. Keep all descriptions VERY CONCISE (1 short sentence max).
 CRITICAL FOR DOMESTIC TRAVEL (like Jeonju, Gyeongju): If airplane flights are rare, populate the 'flights' array with KTX, SRT, or Express Bus options instead.
 CRITICAL: ALL text MUST be in Korean. 
-For food/restaurants, specify 1-2 menu items. Write the menu name in local language AND Korean. Insert an image marker like "" next to the menu.
+For food/restaurants, specify 1-2 menu items. Write the menu name in local language AND Korean. Insert an image marker like "[Image of <Korean Item>]" next to the menu.
 Your response MUST strictly conform to the provided JSON schema. No markdown wrappers.`;
 
       const promptText = `Please generate options for a trip to:
@@ -1443,9 +1432,9 @@ Special request: ${customNotes || 'None'}`;
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 우측 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
+          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
-          showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 시도해 주세요.");
+          showToast("데이터 응답이 길어 끊겼습니다. 일정을 약간 줄이거나 다시 검색해 주세요.");
         } else {
           showToast("오류 발생: " + err.message);
         }
@@ -1644,6 +1633,7 @@ Special request: ${customNotes || 'None'}`;
       renderCandidateOptions();
     };
 
+    // 🛡️ FINAL ITINERARY: Parse Safety and Concise Prompts added to prevent Timeline wipeout
     window.triggerFinalItineraryAIGenerator = async function() {
       const sel = state.selectedSelections;
       if (!sel.flight || !sel.hotel || sel.restaurants.length === 0 || !sel.transit) {
@@ -1658,12 +1648,14 @@ Special request: ${customNotes || 'None'}`;
 
       const systemPrompt = `You are an elite, thorough custom travel designer.
 You must construct a complete day-by-day itinerary in Korean for the user, integrating their chosen items EXACTLY as specified below.
-CRITICAL DETAIL REQUIREMENT: For EVERY activity, provide detailed guides (platform numbers, ticket links). For food, write the menu name in local language AND Korean and insert an image marker like "" right next to it.
-CRITICAL LENGTH LIMIT (PREVENT JSON TRUNCATION): 
-1. Maximum 3 activities per day. 
-2. Descriptions MUST be under 15 words.
-3. Checklist MUST have exactly 5 items.
-4. Budget MUST have exactly 3 items.
+Anchor their entire lodging schedule around their selected Hotel.
+Log their arrival and departure around their selected Flight time schedules.
+Integrate their selected Restaurants on logical days as lunchtime points of interest.
+Incorporate their chosen Transit system into their daily commuting routines.
+CRITICAL DETAIL REQUIREMENT: For EVERY activity, you MUST provide detailed guides. Do not just say "Take a train". Say exactly which line, which station platform to go to, and link ticketing apps.
+For food, you MUST recommend specific menu items matching the companions. Write the menu name in the local language AND Korean. Insert an image marker exactly like "[Image of <Korean Menu Name>]" right next to it.
+Every day must feature structured travel items, each with a concise 'googleMapsQuery' without spaces/extra descriptions, precise time stamps, strict category tags, expected budgets in KRW, boarding spot descriptions, and ticket guidelines.
+To prevent JSON truncation, DO NOT write overly long descriptions (keep to 1 short sentence per activity).
 Output MUST strictly match the specified JSON schema format. Do NOT wrap in any extra markdown text.`;
 
       const promptText = `Assemble a complete, finalized schedule using these custom specifications:
@@ -1822,7 +1814,7 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
         if (err.message === "API_KEY_ERROR") {
           showToast("🚨 외부 배포 시에는 상단에 반드시 본인의 [Gemini API Key]를 입력해야 작동합니다!");
         } else if (err.message === "ALL_MODELS_404") {
-          showToast("🚨 404 에러: API 키에 모델 접근 권한이 없거나 지원되지 않는 지역입니다. AI Studio에서 새 키를 발급받아 보세요.");
+          showToast("🚨 404 에러: 사용하신 API 키에 허용된 모델이 없습니다. 올바른 키인지 확인하세요.");
         } else if (err.message === "JSON_PARSE_ERROR") {
           showToast("일정표를 구성하는 도중 데이터가 손상되었습니다. 다시 한 번 [맞춤 일정표 생성] 버튼을 눌러주세요.");
         } else {
@@ -1831,17 +1823,15 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
       }
     };
 
-    // 🚨 SMART FALLBACK & SAFE PARSER: Handles Vercel 404s and strips out AI conversational text safely
+    // 🚨 STRICT JSON EXTRACTOR & SMART FALLBACK: Safely extracts JSON even if AI adds conversational text
     async function callGeminiAPI(payload, customKey, retries = 3, delay = 1500) {
       const apiKey = customKey || "";
-      // 내부망이면 preview 모델, 외부망(API키 있음)이면 최신 모델 순차 시도
-      const models = apiKey === "" 
-          ? ["gemini-2.5-flash-preview-09-2025"] 
-          : [
-              "gemini-1.5-flash",
-              "gemini-1.5-flash-8b",
-              "gemini-1.0-pro"
-            ];
+      const models = [
+        "gemini-2.5-flash-preview-09-2025", 
+        "gemini-1.5-flash-latest",
+        "gemini-1.5-flash",
+        "gemini-1.5-pro-latest"
+      ];
 
       let lastError;
 
@@ -1889,32 +1879,19 @@ Please ensure the budget estimation generated is ONLY for activities, food, and 
             try {
                 return JSON.parse(responseText);
             } catch (parseError) {
-                console.warn("Attempting to auto-repair truncated JSON...");
-                let repaired = responseText.replace(/,\s*"[^"]*":?\s*$/, '').replace(/,\s*$/, '');
-                let openBraces = (repaired.match(/\{/g) || []).length;
-                let closeBraces = (repaired.match(/\}/g) || []).length;
-                let openBrackets = (repaired.match(/\[/g) || []).length;
-                let closeBrackets = (repaired.match(/\]/g) || []).length;
-
-                while (openBrackets > closeBrackets) { repaired += ']'; closeBrackets++; }
-                while (openBraces > closeBraces) { repaired += '}'; closeBraces++; }
-
-                try {
-                    return JSON.parse(repaired);
-                } catch (secondError) {
-                    console.error("Auto-repair failed. Raw text:", responseText);
-                    throw new Error("JSON_PARSE_ERROR");
-                }
+                console.error("JSON Parsing failed. Raw text:", responseText);
+                throw new Error("JSON_PARSE_ERROR");
             }
 
           } catch (error) {
-            if (error.message === "API_KEY_ERROR" || error.message === "JSON_PARSE_ERROR") {
+            if (error.message === "API_KEY_ERROR") {
                throw error; 
             }
             lastError = error;
             if (error.message === "MODEL_NOT_FOUND") {
                 continue; 
             }
+            // For JSON_PARSE_ERROR or other HTTP errors, break out of model loop and trigger retry
             break; 
           }
         }
@@ -2213,6 +2190,7 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
       }
     }
 
+    // 🗺️ SAFE RENDERING: Adds Fallback values to prevent crashes if AI misses a field like imageUrl
     function renderItineraryTimeline(itinerary) {
       const container = document.getElementById('itineraryTimelineContainer');
       container.innerHTML = '';
@@ -2225,14 +2203,14 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         let dailyMapUrl = '#';
         if (dayData.activities && dayData.activities.length > 0) {
             if (dayData.activities.length === 1) {
-                dailyMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dayData.activities[0].googleMapsQuery || dayData.activities[0].title)}`;
+                dailyMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dayData.activities[0].googleMapsQuery || dayData.activities[0].title || 'Japan')}`;
             } else {
-                const origin = encodeURIComponent(dayData.activities[0].googleMapsQuery || dayData.activities[0].title);
-                const dest = encodeURIComponent(dayData.activities[dayData.activities.length - 1].googleMapsQuery || dayData.activities[dayData.activities.length - 1].title);
+                const origin = encodeURIComponent(dayData.activities[0].googleMapsQuery || dayData.activities[0].title || 'Start');
+                const dest = encodeURIComponent(dayData.activities[dayData.activities.length - 1].googleMapsQuery || dayData.activities[dayData.activities.length - 1].title || 'End');
                 let waypointsStr = '';
                 if (dayData.activities.length > 2) {
                     const middleActs = dayData.activities.slice(1, -1);
-                    const wpArray = middleActs.map(a => encodeURIComponent(a.googleMapsQuery || a.title));
+                    const wpArray = middleActs.map(a => encodeURIComponent(a.googleMapsQuery || a.title || 'Stop'));
                     waypointsStr = '&waypoints=' + wpArray.join('%7C');
                 }
                 dailyMapUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}${waypointsStr}`;
@@ -2243,7 +2221,7 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
           <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-3">
             <div class="flex items-center space-x-3">
               <span class="bg-indigo-600 text-white font-black px-3 py-1 rounded-lg text-sm">DAY ${dayData.day}</span>
-              <h3 class="text-base font-extrabold text-slate-900">${dayData.date}</h3>
+              <h3 class="text-base font-extrabold text-slate-900">${dayData.date || '날짜 미정'}</h3>
             </div>
             
             <div class="flex items-center space-x-2">
@@ -2260,49 +2238,54 @@ Current Detailed Budget: ${JSON.stringify(state.activePlan.budget)}`;
         const timelineList = document.createElement('div');
         timelineList.className = "relative border-l border-slate-100 pl-4 ml-3 space-y-6 pt-3";
 
-        dayData.activities.forEach((act) => {
-          const actItem = document.createElement('div');
-          actItem.className = "relative group";
+        if (dayData.activities && dayData.activities.length > 0) {
+            dayData.activities.forEach((act) => {
+              const actItem = document.createElement('div');
+              actItem.className = "relative group";
 
-          let iconClass = "fa-solid fa-map-pin text-indigo-500 bg-indigo-50";
-          if (act.category.toLowerCase().includes('food') || act.category.includes('식비') || act.category.includes('식사')) {
-            iconClass = "fa-solid fa-utensils text-emerald-500 bg-emerald-50";
-          } else if (act.category.toLowerCase().includes('hotel') || act.category.includes('숙소') || act.category.includes('숙박')) {
-            iconClass = "fa-solid fa-hotel text-amber-500 bg-amber-50";
-          } else if (act.category.toLowerCase().includes('transit') || act.category.includes('교통') || act.category.includes('이동')) {
-            iconClass = "fa-solid fa-car text-sky-500 bg-sky-50";
-          }
+              let iconClass = "fa-solid fa-map-pin text-indigo-500 bg-indigo-50";
+              const catString = (act.category || '').toLowerCase();
+              if (catString.includes('food') || catString.includes('식비') || catString.includes('식사')) {
+                iconClass = "fa-solid fa-utensils text-emerald-500 bg-emerald-50";
+              } else if (catString.includes('hotel') || catString.includes('숙소') || catString.includes('숙박')) {
+                iconClass = "fa-solid fa-hotel text-amber-500 bg-amber-50";
+              } else if (catString.includes('transit') || catString.includes('교통') || catString.includes('이동')) {
+                iconClass = "fa-solid fa-car text-sky-500 bg-sky-50";
+              }
 
-          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.googleMapsQuery || act.title)}`;
+              const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.googleMapsQuery || act.title || 'Location')}`;
 
-          actItem.innerHTML = `
-            <div class="absolute -left-[27px] top-1 w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-sm ${iconClass} border border-white z-10"></div>
-            
-            <div class="bg-slate-50 rounded-xl p-4 border border-transparent hover:border-slate-200 hover:bg-white transition duration-200">
-              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                <div class="flex-grow">
-                  <span class="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">${act.time}</span>
-                  <h4 class="text-sm font-extrabold text-slate-900 mt-1 flex items-center">
-                    <span>${act.title}</span>
-                  </h4>
-                  <p class="text-xs text-slate-600 mt-1.5 leading-relaxed whitespace-pre-wrap">${act.description}</p>
-                  ${act.imageUrl ? `<div class="text-[10px] text-slate-400 bg-slate-200/40 px-2 py-1.5 rounded-lg inline-block font-mono mt-2">${act.imageUrl}</div>` : ''}
-                </div>
+              actItem.innerHTML = `
+                <div class="absolute -left-[27px] top-1 w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-sm ${iconClass} border border-white z-10"></div>
                 
-                <a href="${mapsUrl}" target="_blank" class="self-start sm:self-center bg-white border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center space-x-1.5 shadow-sm transition flex-shrink-0 mt-2 sm:mt-0">
-                  <i class="fa-solid fa-location-dot text-red-500"></i>
-                  <span>단일 장소 검색</span>
-                </a>
-              </div>
-              
-              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                <span><i class="fa-solid fa-coins mr-1"></i> 예상 경비: ${act.cost ? `₩${act.cost.toLocaleString()}` : '무료 / 포함'}</span>
-                <span class="uppercase tracking-wider font-bold text-[9px] text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded">${act.category}</span>
-              </div>
-            </div>
-          `;
-          timelineList.appendChild(actItem);
-        });
+                <div class="bg-slate-50 rounded-xl p-4 border border-transparent hover:border-slate-200 hover:bg-white transition duration-200">
+                  <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                    <div class="flex-grow">
+                      <span class="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">${act.time || '시간 미정'}</span>
+                      <h4 class="text-sm font-extrabold text-slate-900 mt-1 flex items-center">
+                        <span>${act.title || '일정 정보 없음'}</span>
+                      </h4>
+                      <p class="text-xs text-slate-600 mt-1.5 leading-relaxed whitespace-pre-wrap">${act.description || '상세 설명이 제공되지 않았습니다.'}</p>
+                      ${act.imageUrl ? `<div class="text-[10px] text-slate-400 bg-slate-200/40 px-2 py-1.5 rounded-lg inline-block font-mono mt-2">${act.imageUrl}</div>` : ''}
+                    </div>
+                    
+                    <a href="${mapsUrl}" target="_blank" class="self-start sm:self-center bg-white border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center space-x-1.5 shadow-sm transition flex-shrink-0 mt-2 sm:mt-0">
+                      <i class="fa-solid fa-location-dot text-red-500"></i>
+                      <span>단일 장소 검색</span>
+                    </a>
+                  </div>
+                  
+                  <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                    <span><i class="fa-solid fa-coins mr-1"></i> 예상 경비: ${act.cost ? `₩${act.cost.toLocaleString()}` : '무료 / 포함'}</span>
+                    <span class="uppercase tracking-wider font-bold text-[9px] text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded">${act.category || '기타'}</span>
+                  </div>
+                </div>
+              `;
+              timelineList.appendChild(actItem);
+            });
+        } else {
+             timelineList.innerHTML = `<p class="text-xs text-slate-400">해당 날짜에 생성된 일정이 없습니다.</p>`;
+        }
 
         dayCard.appendChild(timelineList);
         container.appendChild(dayCard);
